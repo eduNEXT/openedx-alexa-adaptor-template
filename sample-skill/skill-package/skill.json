@@ -1,0 +1,40 @@
+{
+  "manifest": {
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:667500998519:function:546207a7-305e-4cfa-ae7e-4d9184bdc7d3:Release_0"
+        },
+        "interfaces": [],
+        "regions": {
+          "EU": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:eu-west-1:667500998519:function:546207a7-305e-4cfa-ae7e-4d9184bdc7d3:Release_0"
+            }
+          },
+          "NA": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-east-1:667500998519:function:546207a7-305e-4cfa-ae7e-4d9184bdc7d3:Release_0"
+            }
+          },
+          "FE": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-west-2:667500998519:function:546207a7-305e-4cfa-ae7e-4d9184bdc7d3:Release_0"
+            }
+          }
+        }
+      }
+    },
+    "manifestVersion": "1.0",
+    "publishingInformation": {
+      "distributionCountries": [],
+      "isAvailableWorldwide": true,
+      "locales": {
+        "es-ES": {
+          "name": "OpenedX Skill"
+        }
+      },
+      "testingInstructions": "Sample Testing Instructions."
+    }
+  }
+}

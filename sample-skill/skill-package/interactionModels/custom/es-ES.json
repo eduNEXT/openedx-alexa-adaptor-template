@@ -1,0 +1,71 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "slots": [
+            {
+              "name": "coursename",
+              "type": "COURSENAME"
+            },
+            {
+              "name": "username",
+              "type": "USERNAME"
+            }
+          ],
+          "name": "GetCourseProgressIntent",
+          "samples": [
+            "quiero saber el progreso de {username} en el curso de {coursename}",
+            "dime el porcentaje de avance de {username} en el curso de {coursename}",
+            "quiero el avance de {username} en el curso de {coursename}",
+            "consulta el progreso de {username} en el curso de {coursename}",
+            "dame el progreso de {username} en el curso de {coursename}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "course_name"
+              }
+            }
+          ],
+          "name": "COURSENAME"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "username"
+              }
+            }
+          ],
+          "name": "USERNAME"
+        }
+      ],
+      "invocationName": "asistente educativo"
+    }
+  }
+}
