@@ -12,12 +12,13 @@ from http import HTTPStatus
 
 import ask_sdk_core.utils as ask_utils
 import requests
+from ask_sdk_core.api_client import DefaultApiClient
 from ask_sdk_core.dispatch_components import (
     AbstractExceptionHandler,
     AbstractRequestHandler,
 )
 from ask_sdk_core.handler_input import HandlerInput
-from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
 logger = logging.getLogger(__name__)
@@ -117,6 +118,25 @@ def get_course_id(course_name: str) -> str | None:
     return COURSES.get(course_name)
 
 
+def get_profile_email(handler_input: HandlerInput) -> str | None:
+    """Return the email of the user.
+
+    Args:
+        handler_input (HandlerInput): Handler input
+
+    Returns:
+        str: Email of the user
+        None: If the email can't be retrieved
+    """
+    ups_service_client = handler_input.service_client_factory.get_ups_service()
+    return ups_service_client.get_profile_email()
+
+
+def get_username_by_profile_email(_: str) -> str:
+    """Return the username of the user by email."""
+    return "student"
+
+
 def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     """Return the speak output for the Get Course Progress Intent
 
@@ -125,7 +145,7 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     """
     slots = handler_input.request_envelope.request.intent.slots
 
-    username = slots["username"].value.lower()
+    profile_email = get_profile_email(handler_input)
     coursename = slots["coursename"].value.lower()
 
     token = get_bearer_token()
@@ -134,6 +154,7 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
         return "No fue posible consultar el progreso por un error de acceso."
 
     course_id = get_course_id(coursename)
+    username = get_username_by_profile_email(profile_email)
 
     if not course_id:
         return "El curso no se encuentra. Intente con uno válido."
@@ -274,7 +295,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 # defined are included below. The order matters - they're processed top to bottom.
 
 
-sb = SkillBuilder()
+sb = CustomSkillBuilder(api_client=DefaultApiClient())
 
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(GetCourseProgressIntentHandler())
