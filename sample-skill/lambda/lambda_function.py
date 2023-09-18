@@ -6,6 +6,7 @@
 # session persistence, api calls, and more.
 # This sample is built using the handler classes approach in skill builder.
 import logging
+from http import HTTPStatus
 
 import ask_sdk_core.utils as ask_utils
 import requests
@@ -58,8 +59,8 @@ GRANT_TYPE = "client_credentials"
 MAX_TIMEOUT = 5
 
 
-def get_access_token() -> tuple:
-    """Return the access token to consume the API"""
+def get_bearer_token() -> tuple:
+    """Return the bearer token to consume the API"""
     error_message, access_token = None, None
 
     url = f"{ENDPOINT}/oauth2/access_token"
@@ -68,7 +69,7 @@ def get_access_token() -> tuple:
 
     response = requests.post(url, data=payload, headers=headers, timeout=MAX_TIMEOUT)
 
-    if response.status_code == 200:
+    if response.status_code == HTTPStatus.OK:
         access_token = response.json()["access_token"]
     else:
         error_message =  "No fue posible consultar el progreso por un error de acceso."
@@ -78,18 +79,18 @@ def get_access_token() -> tuple:
 
 def get_course_progress(username: str, coursename: str) -> str:
     """Return the progress of an user in a course"""
-    access_token, error_message = get_access_token()
+    token, error_message = get_bearer_token()
 
-    if not access_token:
+    if not token:
         return error_message
 
     url = f"{ENDPOINT}/eox-core/api/v1/grade/"
     payload = {"username": username, "course_id": COURSES.get(coursename)}
-    headers = headers = {"Authorization": f"Bearer {access_token}"}
+    headers = {"Authorization": f"Bearer {token}"}
 
     response = requests.get(url, data=payload, headers=headers, timeout=MAX_TIMEOUT)
 
-    if response.status_code == 200:
+    if response.status_code == HTTPStatus.OK:
         course_progress = response.json()["earned_grade"]
         return (
             f"El progreso para el estudiante con nombre de usuario {username} "
