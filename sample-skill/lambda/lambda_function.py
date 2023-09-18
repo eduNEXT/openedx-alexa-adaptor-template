@@ -25,17 +25,36 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+
+ENDPOINT = "https://lms.valencia.athena.edunext.link"
+CLIENT_ID = "client_id"
+CLIENT_SECRET = "client_secret"
+GRANT_TYPE = "client_credentials"
+MAX_TIMEOUT = 5
+OUTPUT_MESSAGES = {
+    "WELCOME_MESSAGE": (
+        "Bienvenido, este es el asistente de Open edX, te puedo brindar "
+        "información sobre las métricas de los estudiantes y aspectos "
+        "importantes de un curso."
+    ),
+    "JWT_ERROR_MESSAGE": "No fue posible consultar el progreso por un error de acceso.",
+    "COURSE_NOT_FOUND_MESSAGE": "El curso no se encuentra. Intente con uno válido.",
+    "USER_NOT_FOUND_MESSAGE": "El usuario no se encuentra. Intente con uno válido.",
+    "PROGRESS_MESSAGE": (
+        "El progreso para el estudiante con nombre de usuario {} "
+        "en el curso de {} es {}%."
+    ),
+    "HELP_MESSAGE": "Hola, intenta pidiendo tu progreso en algún curso",
+}
+
+
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
     def can_handle(self, handler_input: HandlerInput) -> bool:
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
-        speak_output = (
-            "Bienvenido, este es el asistente de Open edX, te puedo brindar "
-            "información sobre las métricas de los estudiantes y aspectos "
-            "importantes de un curso."
-        )
+        speak_output = OUTPUT_MESSAGES["WELCOME_MESSAGE"]
 
         return (
             handler_input.response_builder
@@ -45,16 +64,8 @@ class LaunchRequestHandler(AbstractRequestHandler):
         )
 
 
-# Settings
-ENDPOINT = "https://lms.valencia.athena.edunext.link"
-CLIENT_ID = "client_id"
-CLIENT_SECRET = "client_secret"
-GRANT_TYPE = "client_credentials"
-MAX_TIMEOUT = 5
-
-
-def get_bearer_token() -> str | None:
-    """Return the bearer token to consume the API
+def get_jwt_token() -> str | None:
+    """Return the jwt token to consume the API
 
     Returns:
         str: Bearer token
@@ -169,13 +180,13 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     token = get_bearer_token()
 
     if not token:
-        return "No fue posible consultar el progreso por un error de acceso."
+        return OUTPUT_MESSAGES["JWT_ERROR_MESSAGE"]
 
     course_id = get_course_id(coursename)
     username = get_username_by_profile_email(profile_email, token)
 
     if not course_id:
-        return "El curso no se encuentra. Intente con uno válido."
+        return OUTPUT_MESSAGES["COURSE_NOT_FOUND_MESSAGE"]
 
     if not username:
         return "El usuario no se encuentra. Intente con uno válido."
@@ -183,11 +194,10 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     course_progress = get_course_progress(username, course_id, token)
 
     if not course_progress:
-        return "El usuario no se encuentra en el curso. Intente con uno válido."
+        return OUTPUT_MESSAGES["USER_NOT_FOUND_MESSAGE"]
 
-    return (
-        f"El progreso para el estudiante con nombre de usuario {username} "
-        f"en el curso de {coursename} es {course_progress}%."
+    return OUTPUT_MESSAGES["PROGRESS_MESSAGE"].format(
+        username, coursename, course_progress
     )
 
 
@@ -216,9 +226,7 @@ class HelpIntentHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("AMAZON.HelpIntent")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
-        speak_output = (
-            "Hola, intenta pidiendo el progreso de un estudiante en algún curso"
-        )
+        speak_output = OUTPUT_MESSAGES["HELP_MESSAGE"]
         return (
             handler_input.response_builder
                 .speak(speak_output)
