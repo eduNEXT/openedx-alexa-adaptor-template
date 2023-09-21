@@ -7,15 +7,18 @@
 # This sample is built using the handler classes approach in skill builder.
 from __future__ import annotations
 
+import gettext
 import logging
 from http import HTTPStatus
 
 import ask_sdk_core.utils as ask_utils
 import requests
+from alexa import data
 from ask_sdk_core.api_client import DefaultApiClient
 from ask_sdk_core.dispatch_components import (
     AbstractExceptionHandler,
     AbstractRequestHandler,
+    AbstractRequestInterceptor,
 )
 from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_core.skill_builder import CustomSkillBuilder
@@ -25,27 +28,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-
-ENDPOINT = "https://lms.valencia.athena.edunext.link"
+API_DOMAIN = "api_domain"
 CLIENT_ID = "client_id"
 CLIENT_SECRET = "client_secret"
 GRANT_TYPE = "client_credentials"
 MAX_TIMEOUT = 5
-OUTPUT_MESSAGES = {
-    "WELCOME_MESSAGE": (
-        "Bienvenido, este es el asistente de Open edX, te puedo brindar "
-        "información sobre las métricas de los estudiantes y aspectos "
-        "importantes de un curso."
-    ),
-    "JWT_ERROR_MESSAGE": "No fue posible consultar el progreso por un error de acceso.",
-    "COURSE_NOT_FOUND_MESSAGE": "El curso no se encuentra. Intente con uno válido.",
-    "USER_NOT_FOUND_MESSAGE": "El usuario no se encuentra. Intente con uno válido.",
-    "PROGRESS_MESSAGE": (
-        "El progreso para el estudiante con nombre de usuario {} "
-        "en el curso de {} es {}%."
-    ),
-    "HELP_MESSAGE": "Hola, intenta pidiendo tu progreso en algún curso",
-}
 
 
 class LaunchRequestHandler(AbstractRequestHandler):
@@ -54,7 +41,8 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
-        speak_output = OUTPUT_MESSAGES["WELCOME_MESSAGE"]
+        _ = handler_input.attributes_manager.request_attributes["_"]
+        speak_output = _(data.WELCOME_MESSAGE)
 
         return (
             handler_input.response_builder
@@ -64,18 +52,24 @@ class LaunchRequestHandler(AbstractRequestHandler):
         )
 
 
-def get_jwt_token() -> str | None:
-    """Return the jwt token to consume the API
+def get_bearer_token() -> str | None:
+    """Return the bearer token to consume the API
 
     Returns:
         str: Bearer token
         None: If the token can't be retrieved
     """
-    url = f"{ENDPOINT}/oauth2/access_token"
-    payload = f'client_id={CLIENT_ID}&client_secret={CLIENT_SECRET}&grant_type={GRANT_TYPE}'
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    endpoint_url = f"{API_DOMAIN}/oauth2/access_token"
+    payload = (
+        f"client_id={CLIENT_ID}&"
+        f"client_secret={CLIENT_SECRET}&"
+        f"grant_type={GRANT_TYPE}"
+    )
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-    response = requests.post(url, data=payload, headers=headers, timeout=MAX_TIMEOUT)
+    response = requests.post(
+        endpoint_url, data=payload, headers=headers, timeout=MAX_TIMEOUT
+    )
 
     if response.status_code == HTTPStatus.OK:
         return response.json()["access_token"]
@@ -95,11 +89,13 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
         float: Progress of the student in the course
         None: If the progress can't be retrieved
     """
-    url = f"{ENDPOINT}/eox-core/api/v1/grade/"
+    endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/grade/"
     payload = {"username": username, "course_id": course_id}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(url, data=payload, headers=headers, timeout=MAX_TIMEOUT)
+    response = requests.get(
+        endpoint_url, data=payload, headers=headers, timeout=MAX_TIMEOUT
+    )
 
     if response.status_code == HTTPStatus.OK:
         return round(response.json()["earned_grade"]*100, 2)
@@ -154,11 +150,13 @@ def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
         str: Username of the user
         None: If the username can't be retrieved
     """
-    url = f"{ENDPOINT}/eox-core/api/v1/user/"
+    endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/user/"
     params = {"email": profile_email}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(url, params=params, headers=headers, timeout=MAX_TIMEOUT)
+    response = requests.get(
+        endpoint_url, params=params, headers=headers, timeout=MAX_TIMEOUT
+    )
 
     if response.status_code == HTTPStatus.OK:
         return response.json()["username"]
@@ -172,6 +170,7 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     Returns:
         str: Speak output
     """
+    _ = handler_input.attributes_manager.request_attributes["_"]
     slots = handler_input.request_envelope.request.intent.slots
 
     profile_email = get_profile_email(handler_input)
@@ -180,25 +179,23 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     token = get_bearer_token()
 
     if not token:
-        return OUTPUT_MESSAGES["JWT_ERROR_MESSAGE"]
+        return _(data.TOKEN_ERROR_MESSAGE)
 
     course_id = get_course_id(coursename)
     username = get_username_by_profile_email(profile_email, token)
 
     if not course_id:
-        return OUTPUT_MESSAGES["COURSE_NOT_FOUND_MESSAGE"]
+        return _(data.COURSE_NOT_FOUND_MESSAGE)
 
     if not username:
-        return "El usuario no se encuentra. Intente con uno válido."
+        return _(data.USER_NOT_FOUND_MESSAGE)
 
     course_progress = get_course_progress(username, course_id, token)
 
     if not course_progress:
-        return OUTPUT_MESSAGES["USER_NOT_FOUND_MESSAGE"]
+        return _(data.USER_NOT_ENROLLED_MESSAGE)
 
-    return OUTPUT_MESSAGES["PROGRESS_MESSAGE"].format(
-        username, coursename, course_progress
-    )
+    return _(data.PROGRESS_MESSAGE).format(username, coursename, course_progress)
 
 
 class GetCourseProgressIntentHandler(AbstractRequestHandler):
@@ -226,7 +223,8 @@ class HelpIntentHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("AMAZON.HelpIntent")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
-        speak_output = OUTPUT_MESSAGES["HELP_MESSAGE"]
+        _ = handler_input.attributes_manager.request_attributes["_"]
+        speak_output = _(data.HELP_MESSAGE)
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -243,7 +241,8 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
                 ask_utils.is_intent_name("AMAZON.StopIntent")(handler_input))
 
     def handle(self, handler_input: HandlerInput) -> Response:
-        speak_output = "¡Hasta pronto!"
+        _ = handler_input.attributes_manager.request_attributes["_"]
+        speak_output = _(data.CANCEL_OR_STOP_MESSAGE)
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -258,9 +257,10 @@ class FallbackIntentHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("AMAZON.FallbackIntent")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
+        _ = handler_input.attributes_manager.request_attributes["_"]
         logger.info("In FallbackIntentHandler")
-        speech = "Hmm, no estoy seguro. Puedes decir Hola o Ayuda. ¿Qué quieres hacer?"
-        reprompt = "No te entendí. ¿En qué puedo ayudarte?"
+        speech = _(data.FALLBACK_MESSAGE)
+        reprompt = _(data.FALLBACK_REPROMPT_MESSAGE)
 
         return handler_input.response_builder.speak(speech).ask(reprompt).response
 
@@ -276,31 +276,10 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
         return handler_input.response_builder.response
 
 
-class IntentReflectorHandler(AbstractRequestHandler):
-    """The intent reflector is used for interaction model testing and debugging.
-    It will simply repeat the intent the user said. You can create custom handlers
-    for your intents by defining them above, then also adding them to the request
-    handler chain below.
-    """
-
-    def can_handle(self, handler_input: HandlerInput) -> bool:
-        return ask_utils.is_request_type("IntentRequest")(handler_input)
-
-    def handle(self, handler_input: HandlerInput) -> Response:
-        intent_name = ask_utils.get_intent_name(handler_input)
-        speak_output = "You just triggered " + intent_name + "."
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                # .ask("add a reprompt if you want to keep the session open for the user to respond")
-                .response
-        )
-
-
 class CatchAllExceptionHandler(AbstractExceptionHandler):
-    """Generic error handling to capture any syntax or routing errors. If you receive an error
-    stating the request handler chain is not found, you have not implemented a handler for
-    the intent being invoked or included it in the skill builder below.
+    """Generic error handling to capture any syntax or routing errors. If you receive
+    an error stating the request handler chain is not found, you have not implemented
+    a handler for the intent being invoked or included it in the skill builder below.
     """
 
     def can_handle(self, handler_input: HandlerInput, exception: Exception) -> bool:
@@ -308,16 +287,31 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
     def handle(self, handler_input: HandlerInput, exception: Exception) -> Response:
         logger.error(exception, exc_info=True)
-        speak_output = (
-            "Lo siento, he tenido problemas para hacer lo "
-            "que me pedías. Por favor, inténtalo de nuevo."
-        )
+        _ = handler_input.attributes_manager.request_attributes["_"]
+        speak_output = _(data.CATCH_ALL_MESSAGE)
         return (
             handler_input.response_builder
                 .speak(speak_output)
                 .ask(speak_output)
                 .response
         )
+
+
+class LocalizationInterceptor(AbstractRequestInterceptor):
+    """Add function to request attributes, that can load locale specific data."""
+
+    def process(self, handler_input: HandlerInput) -> None:
+        """Add locale specific function to request attributes."""
+        locale = handler_input.request_envelope.request.locale
+        logger.info("Locale is %s", locale)
+
+        i18n = gettext.translation(
+            "data",
+            localedir="locale",
+            languages=[locale],
+            fallback=True,
+        )
+        handler_input.attributes_manager.request_attributes["_"] = i18n.gettext
 
 # The SkillBuilder object acts as the entry point for your skill, routing all request and response
 # payloads to the handlers above. Make sure any new handlers or interceptors you've
@@ -332,8 +326,9 @@ sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
-sb.add_request_handler(IntentReflectorHandler()) # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
 sb.add_exception_handler(CatchAllExceptionHandler())
+
+sb.add_global_request_interceptor(LocalizationInterceptor())
 
 lambda_handler = sb.lambda_handler()

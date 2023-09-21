@@ -1,0 +1,70 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "slots": [
+            {
+              "name": "coursename",
+              "type": "COURSENAME"
+            },
+            {
+              "name": "username",
+              "type": "USERNAME"
+            }
+          ],
+          "name": "GetCourseProgressIntent",
+          "samples": [
+            "I want to know the progress of {username} in the course of {coursename}",
+            "tell me the progress of {username} in the course of {coursename}",
+            "I want the progress of {username} in the course of {coursename}",
+            "give me the progress of {username} in the course of {coursename}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "course_name"
+              }
+            }
+          ],
+          "name": "COURSENAME"
+        },
+        {
+          "values": [
+            {
+              "name": {
+                "value": "username"
+              }
+            }
+          ],
+          "name": "USERNAME"
+        }
+      ],
+      "invocationName": "education assistant"
+    }
+  }
+}
