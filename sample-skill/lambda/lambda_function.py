@@ -132,9 +132,27 @@ def get_profile_email(handler_input: HandlerInput) -> str | None:
     return ups_service_client.get_profile_email()
 
 
-def get_username_by_profile_email(_: str) -> str:
-    """Return the username of the user by email."""
-    return "student"
+def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
+    """Return the openedx username by profile email associated to alexa account
+
+    Args:
+        profile_email (str): Email of the user
+        token (str): Bearer token to consume the API
+
+    Returns:
+        str: Username of the user
+        None: If the username can't be retrieved
+    """
+    url = f"{ENDPOINT}/eox-core/api/v1/user/"
+    params = {"email": profile_email}
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = requests.get(url, params=params, headers=headers, timeout=MAX_TIMEOUT)
+
+    if response.status_code == HTTPStatus.OK:
+        return response.json()["username"]
+
+    return None
 
 
 def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
@@ -154,15 +172,18 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
         return "No fue posible consultar el progreso por un error de acceso."
 
     course_id = get_course_id(coursename)
-    username = get_username_by_profile_email(profile_email)
+    username = get_username_by_profile_email(profile_email, token)
 
     if not course_id:
         return "El curso no se encuentra. Intente con uno válido."
 
+    if not username:
+        return "El usuario no se encuentra. Intente con uno válido."
+
     course_progress = get_course_progress(username, course_id, token)
 
     if not course_progress:
-        return "El usuario no se encuentra. Intente con uno válido."
+        return "El usuario no se encuentra en el curso. Intente con uno válido."
 
     return (
         f"El progreso para el estudiante con nombre de usuario {username} "
