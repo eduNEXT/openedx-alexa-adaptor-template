@@ -31,11 +31,11 @@
           ],
           "name": "GetCourseProgressIntent",
           "samples": [
-            "quiero saber mi progreso en el curso de {coursename}",
-            "dime mi porcentaje de avance en el curso de {coursename}",
-            "quiero mi avance en el curso de {coursename}",
-            "consulta mi progreso en el curso de {coursename}",
-            "dame mi progreso en el curso de {coursename}"
+            "i want to know my progress in the course of {coursename}",
+            "tell me my percentage of progress in the course of {coursename}",
+            "i want my progress in the course of {coursename}",
+            "check my progress in course of {coursename}",
+            "give me my progress in the course of {coursename}"
           ]
         }
       ],
@@ -51,7 +51,7 @@
           "name": "COURSE_NAME"
         }
       ],
-      "invocationName": "asistente educativo"
+      "invocationName": "educational assistant"
     }
   }
 }
