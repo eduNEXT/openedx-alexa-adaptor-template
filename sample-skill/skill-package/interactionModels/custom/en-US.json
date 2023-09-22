@@ -26,19 +26,16 @@
           "slots": [
             {
               "name": "coursename",
-              "type": "COURSENAME"
-            },
-            {
-              "name": "username",
-              "type": "USERNAME"
+              "type": "COURSE_NAME"
             }
           ],
           "name": "GetCourseProgressIntent",
           "samples": [
-            "I want to know the progress of {username} in the course of {coursename}",
-            "tell me the progress of {username} in the course of {coursename}",
-            "I want the progress of {username} in the course of {coursename}",
-            "give me the progress of {username} in the course of {coursename}"
+            "i want to know my progress in the course of {coursename}",
+            "tell me my percentage of progress in the course of {coursename}",
+            "i want my progress in the course of {coursename}",
+            "check my progress in course of {coursename}",
+            "give me my progress in the course of {coursename}"
           ]
         }
       ],
@@ -51,20 +48,10 @@
               }
             }
           ],
-          "name": "COURSENAME"
-        },
-        {
-          "values": [
-            {
-              "name": {
-                "value": "username"
-              }
-            }
-          ],
-          "name": "USERNAME"
+          "name": "COURSE_NAME"
         }
       ],
-      "invocationName": "education assistant"
+      "invocationName": "educational assistant"
     }
   }
 }

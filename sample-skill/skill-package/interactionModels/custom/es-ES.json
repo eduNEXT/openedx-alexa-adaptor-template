@@ -26,20 +26,16 @@
           "slots": [
             {
               "name": "coursename",
-              "type": "COURSENAME"
-            },
-            {
-              "name": "username",
-              "type": "USERNAME"
+              "type": "COURSE_NAME"
             }
           ],
           "name": "GetCourseProgressIntent",
           "samples": [
-            "quiero saber el progreso de {username} en el curso de {coursename}",
-            "dime el porcentaje de avance de {username} en el curso de {coursename}",
-            "quiero el avance de {username} en el curso de {coursename}",
-            "consulta el progreso de {username} en el curso de {coursename}",
-            "dame el progreso de {username} en el curso de {coursename}"
+            "quiero saber mi progreso en el curso de {coursename}",
+            "dime mi porcentaje de avance en el curso de {coursename}",
+            "quiero mi avance en el curso de {coursename}",
+            "consulta mi progreso en el curso de {coursename}",
+            "dame mi progreso en el curso de {coursename}"
           ]
         }
       ],
@@ -52,17 +48,7 @@
               }
             }
           ],
-          "name": "COURSENAME"
-        },
-        {
-          "values": [
-            {
-              "name": {
-                "value": "username"
-              }
-            }
-          ],
-          "name": "USERNAME"
+          "name": "COURSE_NAME"
         }
       ],
       "invocationName": "asistente educativo"
