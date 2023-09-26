@@ -23,7 +23,7 @@ from ask_sdk_model.response import Response
 
 from alexa import data
 from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
-from alexa.utils import get_request, post_request
+from alexa.utils import make_request
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -67,9 +67,9 @@ def get_bearer_token() -> str | None:
     )
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-    response = post_request(endpoint_url, payload, headers=headers)
+    response = make_request(endpoint_url, "POST", data=payload, headers=headers)
 
-    return response["access_token"] if response else None
+    return response.get("access_token")
 
 
 def get_course_progress(username: str, course_id: str, token: str) -> float | None:
@@ -89,7 +89,7 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
     payload = {"username": username, "course_id": course_id}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = get_request(endpoint_url, payload, headers=headers)
+    response = make_request(endpoint_url, data=payload, headers=headers)
 
     return round(response["earned_grade"]*100, 2) if response else None
 
@@ -111,7 +111,7 @@ def get_enrollments_by_user(username: str, token: str) -> list | None:
     params = {"username": username}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = get_request(endpoint_url, params, headers=headers)
+    response = make_request(endpoint_url, params=params, headers=headers)
 
     return [result["course_id"] for result in response["results"]] if response else None
 
@@ -132,9 +132,9 @@ def get_courses_by_user(username: str, token: str) -> list | None:
     params = {"username": username}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = get_request(endpoint_url, params, headers=headers)
+    response = make_request(endpoint_url, params=params, headers=headers)
 
-    return response["results"] if response else None
+    return response.get("results")
 
 
 def get_course_id(course_name: str, username: str, token: str) -> str | None:
@@ -198,9 +198,9 @@ def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
     params = {"email": profile_email}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = get_request(endpoint_url, params, headers=headers)
+    response = make_request(endpoint_url, params=params, headers=headers)
 
-    return response["username"] if response else None
+    return response.get("username")
 
 
 def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:

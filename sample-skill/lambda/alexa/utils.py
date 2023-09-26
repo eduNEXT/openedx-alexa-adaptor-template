@@ -9,62 +9,37 @@ import requests
 from constants import MAX_TIMEOUT
 
 
-def get_request(
+def make_request(
     url: str,
-    request_data: Optional[dict] = None,
+    method="GET",
+    data: Optional[dict | str] = None,
     params: Optional[dict] = None,
     headers: Optional[dict] = None,
-) -> dict | None:
+) -> dict:
     """
-    Perform an HTTP GET request to the specified URL.
+    Perform an HTTP request with the specified method.
 
     Args:
-        url (str): The URL to send the GET request to.
-        request_data (Optional[dict], optional): The request data to include
-        in the request body. Defaults to None.
-        params (Optional[dict], optional): Query parameters to include
-        in the request URL. Defaults to None.
-        headers (Optional[dict], optional): Additional headers to include
-        in the request. Defaults to None.
+        url (str): The URL to send the request to.
+        method (str): The HTTP method to use (e.g., "GET", "POST").
+        data (dict | str, optional): The request data to include in the request body.
+        headers (dict, optional): Additional headers to include in the request.
+        params (dict, optional): Query parameters to include in the request URL.
 
     Returns:
-        dict | None: A dictionary representing the JSON response
-        if the request is successful, None otherwise.
+        dict: A dictionary representing the JSON response
+        if the request is successful, empty dict otherwise.
     """
-    response = requests.get(
-        url, data=request_data, params=params, headers=headers, timeout=MAX_TIMEOUT
-    )
+    if method == "GET":
+        response = requests.get(
+            url, data=data, params=params, headers=headers, timeout=MAX_TIMEOUT
+        )
+    elif method == "POST":
+        response = requests.post(url, data=data, headers=headers, timeout=MAX_TIMEOUT)
+    else:
+        return {}
 
     if response.status_code == HTTPStatus.OK:
         return response.json()
 
-    return None
-
-
-def post_request(
-    url: str,
-    request_data: dict | str,
-    headers: Optional[dict] = None,
-) -> dict | None:
-    """
-    Perform an HTTP POST request to the specified URL.
-
-    Args:
-        url (str): The URL to send the GET request to.
-        request_data (Optional[dict], optional): The request data to include
-        in the request body. Defaults to None.
-        headers (Optional[dict], optional): Additional headers to include
-        in the request. Defaults to None.
-
-    Returns:
-        dict | None: A dictionary representing the JSON response
-        if the request is successful, None otherwise.
-    """
-    response = requests.post(
-        url, data=request_data, headers=headers, timeout=MAX_TIMEOUT
-    )
-
-    if response.status_code == HTTPStatus.OK:
-        return response.json()
-
-    return None
+    return {}
