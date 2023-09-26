@@ -9,11 +9,8 @@ from __future__ import annotations
 
 import gettext
 import logging
-from http import HTTPStatus
 
 import ask_sdk_core.utils as ask_utils
-import requests
-from alexa import data
 from ask_sdk_core.api_client import DefaultApiClient
 from ask_sdk_core.dispatch_components import (
     AbstractExceptionHandler,
@@ -24,15 +21,12 @@ from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
+from alexa import data
+from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
+from alexa.utils import get_request, post_request
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-API_DOMAIN = "api_domain"
-CLIENT_ID = "client_id"
-CLIENT_SECRET = "client_secret"
-GRANT_TYPE = "client_credentials"
-MAX_TIMEOUT = 5
 
 
 class LaunchRequestHandler(AbstractRequestHandler):
@@ -73,14 +67,9 @@ def get_bearer_token() -> str | None:
     )
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-    response = requests.post(
-        endpoint_url, data=payload, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = post_request(endpoint_url, payload, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return response.json()["access_token"]
-
-    return None
+    return response["access_token"] if response else None
 
 
 def get_course_progress(username: str, course_id: str, token: str) -> float | None:
@@ -100,14 +89,9 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
     payload = {"username": username, "course_id": course_id}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(
-        endpoint_url, data=payload, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = get_request(endpoint_url, payload, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return round(response.json()["earned_grade"]*100, 2)
-
-    return None
+    return round(response["earned_grade"]*100, 2) if response else None
 
 
 def get_enrollments_by_user(username: str, token: str) -> list | None:
@@ -127,14 +111,9 @@ def get_enrollments_by_user(username: str, token: str) -> list | None:
     params = {"username": username}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(
-        endpoint_url, params=params, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = get_request(endpoint_url, params, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return [result["course_id"] for result in response.json()["results"]]
-
-    return None
+    return [result["course_id"] for result in response["results"]] if response else None
 
 
 def get_courses_by_user(username: str, token: str) -> list | None:
@@ -153,14 +132,9 @@ def get_courses_by_user(username: str, token: str) -> list | None:
     params = {"username": username}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(
-        endpoint_url, params=params, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = get_request(endpoint_url, params, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return response.json()["results"]
-
-    return None
+    return response["results"] if response else None
 
 
 def get_course_id(course_name: str, username: str, token: str) -> str | None:
@@ -224,14 +198,9 @@ def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
     params = {"email": profile_email}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(
-        endpoint_url, params=params, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = get_request(endpoint_url, params, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return response.json()["username"]
-
-    return None
+    return response["username"] if response else None
 
 
 def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
