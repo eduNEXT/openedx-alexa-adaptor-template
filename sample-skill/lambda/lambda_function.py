@@ -1,19 +1,16 @@
-"""Alexa skill to get the progress of an user in a course in Open edX"""
-# -*- coding: utf-8 -*-
+"""
+Alexa Skill module for Open edX
 
-# This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK for Python.
-# Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
-# session persistence, api calls, and more.
-# This sample is built using the handler classes approach in skill builder.
+This module contains the core logic of the Alexa Skill designed to interact with the
+Open edX platform. The Skill includes an example interaction that allows you to consult
+the student's progress in a given course on the Open edX platform.
+"""
 from __future__ import annotations
 
 import gettext
 import logging
-from http import HTTPStatus
 
 import ask_sdk_core.utils as ask_utils
-import requests
-from alexa import data
 from ask_sdk_core.api_client import DefaultApiClient
 from ask_sdk_core.dispatch_components import (
     AbstractExceptionHandler,
@@ -24,19 +21,21 @@ from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
+from alexa import data
+from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
+from alexa.utils import make_request
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-API_DOMAIN = "api_domain"
-CLIENT_ID = "client_id"
-CLIENT_SECRET = "client_secret"
-GRANT_TYPE = "client_credentials"
-MAX_TIMEOUT = 5
-
-
 class LaunchRequestHandler(AbstractRequestHandler):
-    """Handler for Skill Launch."""
+    """
+    Handler for the Skill's Launch Request.
+
+    This handler is responsible for processing the launch request when the user
+    invokes the skill. It provides a welcome message to the user.
+    """
     def can_handle(self, handler_input: HandlerInput) -> bool:
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
@@ -53,11 +52,12 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
 
 def get_bearer_token() -> str | None:
-    """Return the bearer token to consume the API
+    """
+    Retrieve the Bearer token required to consume the API.
 
     Returns:
-        str: Bearer token
-        None: If the token can't be retrieved
+        str | None: The Bearer token if successfully retrieved,
+        None if the token can't be obtained.
     """
     endpoint_url = f"{API_DOMAIN}/oauth2/access_token"
     payload = (
@@ -67,108 +67,151 @@ def get_bearer_token() -> str | None:
     )
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
-    response = requests.post(
-        endpoint_url, data=payload, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = make_request(endpoint_url, "POST", data=payload, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return response.json()["access_token"]
-
-    return None
+    return response.get("access_token")
 
 
 def get_course_progress(username: str, course_id: str, token: str) -> float | None:
-    """Return the progress of an user in a course
+    """
+    Retrieve and return the progress of a user in a specific course.
 
     Args:
-        username (str): Username of the student
-        course_id (str): Course id
-        token (str): Bearer token to consume the API
+        username (str): The username of the student.
+        course_id (str): The ID of the course.
+        token (str): The Bearer token used to consume the API.
 
     Returns:
-        float: Progress of the student in the course
-        None: If the progress can't be retrieved
+        float | None: The progress of the student in the course as a percentage
+        (0.00 - 100.00), or None if the progress can't be retrieved.
     """
     endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/grade/"
     payload = {"username": username, "course_id": course_id}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(
-        endpoint_url, data=payload, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = make_request(endpoint_url, data=payload, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return round(response.json()["earned_grade"]*100, 2)
-
-    return None
+    return round(response["earned_grade"]*100, 2) if response else None
 
 
-def get_course_id(course_name: str) -> str | None:
-    """Return the course id by the course name
+def get_enrollments_by_user(username: str, token: str) -> list | None:
+    """
+    Retrieve a list of course enrollments for a user. Each element of
+    the list is a course ID.
 
     Args:
-        course_name (str): Course name
+        username (str): The username of the student.
+        token (str): The Bearer token used to consume the API.
 
     Returns:
-        str: Course id
-        None: If the course can't be retrieved
+        list[str] | None: A list of course IDs if enrollments are found,
+        None if enrollments can't be retrieved.
     """
-    COURSES = {
-        "h5p": "course-v1:eduNEXT+H5P101+2023_T2",
-        "mindmap": "course-v1:eduNEXT+MM101+2023_T2",
-        "demo": "course-v1:edX+DemoX+Demo_Course",
-        "limesurvey": "course-v1:edunext+lime-demo-1+2023",
-        "ora": "course-v1:eduNEXT+ORA101+2023_T2",
-        "openedx": "course-v1:eduNEXT+LS101+2013_T1",
-    }
+    endpoint_url = f"{API_DOMAIN}/api/enrollment/v1/enrollments/"
+    params = {"username": username}
+    headers = {"Authorization": f"Bearer {token}"}
 
-    return COURSES.get(course_name)
+    response = make_request(endpoint_url, params=params, headers=headers)
+
+    return [result["course_id"] for result in response["results"]] if response else None
+
+
+def get_courses_by_user(username: str, token: str) -> list | None:
+    """
+    Returns the list of all courses that a user can view.
+
+    Args:
+        username (str): The username of the student.
+        token (str): The Bearer token used to consume the API.
+
+    Returns:
+        list | None: A list of courses if successfully retrieved,
+        None if the courses can't be obtained.
+    """
+    endpoint_url = f"{API_DOMAIN}/api/courses/v1/courses/"
+    params = {"username": username}
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = make_request(endpoint_url, params=params, headers=headers)
+
+    return response.get("results")
+
+
+def get_course_id(course_name: str, username: str, token: str) -> str | None:
+    """
+    Obtains the course ID based on the course name.
+
+    First, it obtains the list of courses that the user can view. Then, it
+    obtains the list of courses in which the user is enrolled. Finally, it
+    returns the course ID if the course name is found in the list of courses.
+
+    Args:
+        course_name (str): The name of the course.
+        username (str): The username of the student.
+        token (str): The Bearer token used to consume the API.
+
+    Returns:
+        str | None: The course ID if found, None if the course cannot be retrieved.
+    """
+    enrollments = get_enrollments_by_user(username, token)
+    all_courses = get_courses_by_user(username, token)
+
+    if not enrollments or not all_courses:
+        return None
+
+    valid_courses = {}
+    for course in all_courses:
+        if course["id"] in enrollments:
+            valid_courses[course["name"].lower()] = course["id"]
+
+    return valid_courses.get(course_name)
 
 
 def get_profile_email(handler_input: HandlerInput) -> str | None:
-    """Return the email of the user.
+    """
+    Retrieve the email of the user associated to the Alexa account.
 
     Args:
-        handler_input (HandlerInput): Handler input
+        handler_input (HandlerInput): The input handler for the request.
 
     Returns:
-        str: Email of the user
-        None: If the email can't be retrieved
+        str | None: The email of the user if successfully retrieved,
+        None if the email can't be obtained.
     """
     ups_service_client = handler_input.service_client_factory.get_ups_service()
     return ups_service_client.get_profile_email()
 
 
 def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
-    """Return the openedx username by profile email associated to alexa account
+    """
+    Retrieve the Open edX username associated with the Alexa account's profile email.
 
     Args:
-        profile_email (str): Email of the user
-        token (str): Bearer token to consume the API
+        profile_email (str): The email address of the user.
+        token (str): The Bearer token used to consume the API.
 
     Returns:
-        str: Username of the user
-        None: If the username can't be retrieved
+        str | None: The username of the user if successfully retrieved,
+        None if the username can't be obtained.
     """
     endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/user/"
     params = {"email": profile_email}
     headers = {"Authorization": f"Bearer {token}"}
 
-    response = requests.get(
-        endpoint_url, params=params, headers=headers, timeout=MAX_TIMEOUT
-    )
+    response = make_request(endpoint_url, params=params, headers=headers)
 
-    if response.status_code == HTTPStatus.OK:
-        return response.json()["username"]
-
-    return None
+    return response.get("username")
 
 
 def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
-    """Return the speak output for the Get Course Progress Intent
+    """"
+    Generate the speak output for the GetCourseProgressIntent.
+
+    Args:
+        handler_input (HandlerInput): The input handler for the request.
 
     Returns:
-        str: Speak output
+        str: The speak output.
     """
     _ = handler_input.attributes_manager.request_attributes["_"]
     slots = handler_input.request_envelope.request.intent.slots
@@ -181,14 +224,15 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     if not token:
         return _(data.TOKEN_ERROR_MESSAGE)
 
-    course_id = get_course_id(coursename)
     username = get_username_by_profile_email(profile_email, token)
-
-    if not course_id:
-        return _(data.COURSE_NOT_FOUND_MESSAGE)
 
     if not username:
         return _(data.USER_NOT_FOUND_MESSAGE)
+
+    course_id = get_course_id(coursename, username, token)
+
+    if not course_id:
+        return _(data.COURSE_NOT_FOUND_MESSAGE)
 
     course_progress = get_course_progress(username, course_id, token)
 
@@ -199,8 +243,12 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
 
 
 class GetCourseProgressIntentHandler(AbstractRequestHandler):
-    """Handler for Get Course Progress in Open edX"""
+    """
+    Handler for the Skill's GetCourseProgressIntent
 
+    This handler processes user requests to retrieve and provide course progress
+    information from the Open edX platform.
+    """
     def can_handle(self, handler_input: HandlerInput) -> bool:
         return ask_utils.is_intent_name("GetCourseProgressIntent")(handler_input)
 
@@ -298,8 +346,12 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 
 
 class LocalizationInterceptor(AbstractRequestInterceptor):
-    """Add function to request attributes, that can load locale specific data."""
+    """
+    Interceptor for handling localization in the Alexa Skill.
 
+    This interceptor is responsible for handling the localization of the Skill.
+    It retrieves the locale of the request and sets the appropriate translation
+    """
     def process(self, handler_input: HandlerInput) -> None:
         """Add locale specific function to request attributes."""
         locale = handler_input.request_envelope.request.locale
@@ -312,10 +364,6 @@ class LocalizationInterceptor(AbstractRequestInterceptor):
             fallback=True,
         )
         handler_input.attributes_manager.request_attributes["_"] = i18n.gettext
-
-# The SkillBuilder object acts as the entry point for your skill, routing all request and response
-# payloads to the handlers above. Make sure any new handlers or interceptors you've
-# defined are included below. The order matters - they're processed top to bottom.
 
 
 sb = CustomSkillBuilder(api_client=DefaultApiClient())
