@@ -22,7 +22,7 @@ from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
 from auth.alexa_authentication import AlexaEmailAuthentication
-from auth.authentication import EmailAuthentication
+from auth.base_authentication import BaseEmailAuthenticationBackend
 from alexa import data
 from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
 from alexa.utils import make_request
@@ -169,7 +169,9 @@ def get_course_id(course_name: str, username: str, token: str) -> str | None:
     return valid_courses.get(course_name)
 
 
-def get_email(backend_instance: object) -> tuple[str | None, str | None]:
+def get_email(
+    backend_instance: BaseEmailAuthenticationBackend
+) -> tuple[str | None, str | None]:
     """
     Retrieve the user's email using a flexible authentication backend.
 
@@ -190,11 +192,10 @@ def get_email(backend_instance: object) -> tuple[str | None, str | None]:
     """
     error_message = None
 
-    auth_email_backend = EmailAuthentication(backend_instance)
-    email = auth_email_backend.get_email()
+    email = backend_instance.get_email()
 
     if not email:
-        error_message = auth_email_backend.EMAIL_ERROR_MESSAGE
+        error_message = backend_instance.EMAIL_ERROR_MESSAGE
 
     return error_message, email
 
@@ -220,7 +221,9 @@ def get_username_by_email(email: str, token: str) -> str | None:
     return response.get("username")
 
 
-def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
+def get_speak_output_get_course_progress(
+    handler_input: HandlerInput, email_auth_backend: BaseEmailAuthenticationBackend
+) -> str:
     """"
     Generate the speak output for the GetCourseProgressIntent.
 
@@ -233,10 +236,7 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     _ = handler_input.attributes_manager.request_attributes["_"]
     slots = handler_input.request_envelope.request.intent.slots
 
-    # Change the backend instance to use a different authentication method.
-    backend_instance = AlexaEmailAuthentication(handler_input)
-
-    error_message, email = get_email(backend_instance)
+    error_message, email = get_email(email_auth_backend)
 
     if error_message:
         return error_message
@@ -278,7 +278,12 @@ class GetCourseProgressIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input: HandlerInput) -> Response:
 
-        speak_output = get_speak_output_get_course_progress(handler_input)
+        # Change the email auth backend to use a different authentication method.
+        email_auth_backend = AlexaEmailAuthentication(handler_input)
+
+        speak_output = get_speak_output_get_course_progress(
+            handler_input, email_auth_backend
+        )
 
         return (
             handler_input.response_builder
