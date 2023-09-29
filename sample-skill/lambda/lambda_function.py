@@ -74,7 +74,7 @@ def get_bearer_token() -> str | None:
     return response.get("access_token")
 
 
-def get_course_progress(username: str, course_id: str, token: str) -> float | None:
+def get_course_progress(username: str, course_id: str, token: str) -> float:
     """
     Retrieve and return the progress of a user in a specific course.
 
@@ -84,8 +84,8 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
         token (str): The Bearer token used to consume the API.
 
     Returns:
-        float | None: The progress of the student in the course as a percentage
-        (0.00 - 100.00), or None if the progress can't be retrieved.
+        float: The progress of the student in the course as a percentage
+        (0.00 - 100.00), or 0.0 if the progress can't be retrieved.
     """
     endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/grade/"
     payload = {"username": username, "course_id": course_id}
@@ -93,10 +93,10 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
 
     response = make_request(endpoint_url, data=payload, headers=headers)
 
-    return round(response["earned_grade"]*100, 2) if response else None
+    return round(response.get("earned_grade", 0) * 100, 2)
 
 
-def get_enrollments_by_user(username: str, token: str) -> list | None:
+def get_enrollments_by_user(username: str, token: str) -> list[str]:
     """
     Retrieve a list of course enrollments for a user. Each element of
     the list is a course ID.
@@ -106,8 +106,8 @@ def get_enrollments_by_user(username: str, token: str) -> list | None:
         token (str): The Bearer token used to consume the API.
 
     Returns:
-        list[str] | None: A list of course IDs if enrollments are found,
-        None if enrollments can't be retrieved.
+        list[str]: A list of course IDs if enrollments are found,
+        empty list if enrollments can't be retrieved.
     """
     endpoint_url = f"{API_DOMAIN}/api/enrollment/v1/enrollments/"
     params = {"username": username}
@@ -115,7 +115,7 @@ def get_enrollments_by_user(username: str, token: str) -> list | None:
 
     response = make_request(endpoint_url, params=params, headers=headers)
 
-    return [result["course_id"] for result in response["results"]] if response else None
+    return [result.get("course_id") for result in response.get("results", [])]
 
 
 def get_courses_by_user(username: str, token: str) -> list | None:
@@ -199,12 +199,12 @@ def get_email(backend_instance: object) -> tuple[str | None, str | None]:
     return error_message, email
 
 
-def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
+def get_username_by_email(email: str, token: str) -> str | None:
     """
-    Retrieve the Open edX username associated with the Alexa account's profile email.
+    Retrieve the Open edX username associated with the email.
 
     Args:
-        profile_email (str): The email address of the user.
+        email (str): The email address of the user.
         token (str): The Bearer token used to consume the API.
 
     Returns:
@@ -212,7 +212,7 @@ def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
         None if the username can't be obtained.
     """
     endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/user/"
-    params = {"email": profile_email}
+    params = {"email": email}
     headers = {"Authorization": f"Bearer {token}"}
 
     response = make_request(endpoint_url, params=params, headers=headers)
@@ -233,7 +233,7 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     _ = handler_input.attributes_manager.request_attributes["_"]
     slots = handler_input.request_envelope.request.intent.slots
 
-    # Change here the authentication backend if you want to use a different one
+    # Change the backend instance to use a different authentication method.
     backend_instance = AlexaEmailAuthentication(handler_input)
 
     error_message, email = get_email(backend_instance)
@@ -248,10 +248,10 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     if not token:
         return _(data.TOKEN_ERROR_MESSAGE)
 
-    username = get_username_by_profile_email(email, token)
+    username = get_username_by_email(email, token)
 
     if not username:
-        return _(data.USER_NOT_FOUND_MESSAGE)
+        return _(data.USER_NOT_FOUND_MESSAGE).format(email)
 
     course_id = get_course_id(coursename, username, token)
 
