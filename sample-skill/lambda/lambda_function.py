@@ -21,6 +21,8 @@ from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
+from auth.alexa_authentication import AlexaEmailAuthentication
+from auth.authentication import EmailAuthentication
 from alexa import data
 from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
 from alexa.utils import make_request
@@ -167,19 +169,34 @@ def get_course_id(course_name: str, username: str, token: str) -> str | None:
     return valid_courses.get(course_name)
 
 
-def get_profile_email(handler_input: HandlerInput) -> str | None:
+def get_email(backend_instance: object) -> tuple[str | None, str | None]:
     """
-    Retrieve the email of the user associated to the Alexa account.
+    Retrieve the user's email using a flexible authentication backend.
+
+    This function is designed to retrieve the user's email address using a
+    flexible authentication backend, allowing variations based on the provided
+    `backend_instance`. It attempts to fetch the user's email address, and if
+    successful, returns it along with an error message (if any).
 
     Args:
-        handler_input (HandlerInput): The input handler for the request.
+        backend_instance (object): An instance of an authentication backend with
+        a 'get_email' method.
 
     Returns:
-        str | None: The email of the user if successfully retrieved,
-        None if the email can't be obtained.
+        tuple[str | None, str | None]: A tuple containing two elements:
+            - The error message (str) if there was an error during email retrieval,
+              otherwise None.
+            - The email (str) of the user if successfully retrieved, otherwise None.
     """
-    ups_service_client = handler_input.service_client_factory.get_ups_service()
-    return ups_service_client.get_profile_email()
+    error_message = None
+
+    auth_email_backend = EmailAuthentication(backend_instance)
+    email = auth_email_backend.get_email()
+
+    if not email:
+        error_message = auth_email_backend.EMAIL_ERROR_MESSAGE
+
+    return error_message, email
 
 
 def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
@@ -216,7 +233,14 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     _ = handler_input.attributes_manager.request_attributes["_"]
     slots = handler_input.request_envelope.request.intent.slots
 
-    profile_email = get_profile_email(handler_input)
+    # Change here the authentication backend if you want to use a different one
+    backend_instance = AlexaEmailAuthentication(handler_input)
+
+    error_message, email = get_email(backend_instance)
+
+    if error_message:
+        return error_message
+
     coursename = slots["coursename"].value.lower()
 
     token = get_bearer_token()
@@ -224,7 +248,7 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     if not token:
         return _(data.TOKEN_ERROR_MESSAGE)
 
-    username = get_username_by_profile_email(profile_email, token)
+    username = get_username_by_profile_email(email, token)
 
     if not username:
         return _(data.USER_NOT_FOUND_MESSAGE)
