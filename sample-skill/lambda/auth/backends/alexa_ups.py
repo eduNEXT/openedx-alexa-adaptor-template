@@ -1,12 +1,17 @@
 """Alexa Authentication Backend"""
 from __future__ import annotations
 
+import logging
 from gettext import gettext as _
 
 from ask_sdk_core.exceptions import AskSdkException
 from ask_sdk_core.handler_input import HandlerInput
 
-from auth.base_authentication import BaseEmailAuthenticationBackend
+from auth.backends.base import BaseEmailAuthenticationBackend
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class AlexaEmailAuthentication(BaseEmailAuthenticationBackend):
@@ -46,5 +51,6 @@ class AlexaEmailAuthentication(BaseEmailAuthenticationBackend):
                 .get_ups_service()
             )
             return ups_service_client.get_profile_email()  # type: ignore
-        except AskSdkException:
+        except AskSdkException as error:
+            logger.error(error)
             return None

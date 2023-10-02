@@ -1,5 +1,5 @@
 """Dummy Authentication Backend"""
-from auth.base_authentication import BaseEmailAuthenticationBackend
+from auth.backends.base import BaseEmailAuthenticationBackend
 
 
 class DummyEmailAuthentication(BaseEmailAuthenticationBackend):

@@ -1,12 +1,24 @@
 """Utility functions for the Alexa skill."""
 from __future__ import annotations
 
+import os
+import sys
 from http import HTTPStatus
-from typing import Optional
+from importlib import import_module
+from typing import Callable, Optional
 
 import requests
+from dotenv import load_dotenv
 
 from constants import MAX_TIMEOUT
+from auth.backends.alexa_ups import AlexaEmailAuthentication
+
+
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(project_root, "../.."))
+
+
+load_dotenv()
 
 
 def make_request(
@@ -43,3 +55,26 @@ def make_request(
         return response.json()
 
     return {}
+
+
+def get_email_auth_class() -> Callable:
+    """
+    Get the email authentication class based on environment variables.
+
+    This function retrieves the email authentication class to be used based
+    on the value of the "EMAIL_AUTH_CLASS" environment variable. If the variable
+    is not set or is empty, it returns the default email authentication class
+    `AlexaEmailAuthentication`.
+
+    Returns:
+        type: The class for email authentication based on the environment variable.
+    """
+    email_auth_class = os.getenv("EMAIL_AUTH_CLASS", None)
+
+    if not email_auth_class:
+        return AlexaEmailAuthentication
+
+    module_name, class_name = email_auth_class.rsplit(".", 1)
+    module = import_module(module_name)
+
+    return getattr(module, class_name, AlexaEmailAuthentication)

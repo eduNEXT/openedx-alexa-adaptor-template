@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import gettext
 import logging
+from typing import Callable
 
 import ask_sdk_core.utils as ask_utils
 from ask_sdk_core.api_client import DefaultApiClient
@@ -21,11 +22,10 @@ from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
-from auth.alexa_authentication import AlexaEmailAuthentication
-from auth.base_authentication import BaseEmailAuthenticationBackend
 from alexa import data
 from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
-from alexa.utils import make_request
+from alexa.utils import make_request, get_email_auth_class
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -169,19 +169,17 @@ def get_course_id(course_name: str, username: str, token: str) -> str | None:
     return valid_courses.get(course_name)
 
 
-def get_email(
-    backend_instance: BaseEmailAuthenticationBackend
-) -> tuple[str | None, str | None]:
+def get_email(email_auth_instance: Callable) -> tuple[str | None, str | None]:
     """
     Retrieve the user's email using a flexible authentication backend.
 
     This function is designed to retrieve the user's email address using a
     flexible authentication backend, allowing variations based on the provided
-    `backend_instance`. It attempts to fetch the user's email address, and if
+    `email_auth_instance`. It attempts to fetch the user's email address, and if
     successful, returns it along with an error message (if any).
 
     Args:
-        backend_instance (object): An instance of an authentication backend with
+        email_auth_instance (object): An instance of an authentication backend with
         a 'get_email' method.
 
     Returns:
@@ -192,10 +190,10 @@ def get_email(
     """
     error_message = None
 
-    email = backend_instance.get_email()
+    email = email_auth_instance.get_email()
 
     if not email:
-        error_message = backend_instance.EMAIL_ERROR_MESSAGE
+        error_message = email_auth_instance.EMAIL_ERROR_MESSAGE
 
     return error_message, email
 
@@ -222,21 +220,29 @@ def get_username_by_email(email: str, token: str) -> str | None:
 
 
 def get_speak_output_get_course_progress(
-    handler_input: HandlerInput, email_auth_backend: BaseEmailAuthenticationBackend
+    handler_input: HandlerInput, email_auth_instance: Callable
 ) -> str:
-    """"
+    """
     Generate the speak output for the GetCourseProgressIntent.
+
+    This function generates the spoken response for the GetCourseProgressIntent in
+    an Alexa skill. It uses the provided email authentication instance to retrieve
+    the user's email address, which is then used to fetch the course progress for a
+    specified course. If any errors occur during the process, appropriate error messages
+    are returned in the spoken response.
 
     Args:
         handler_input (HandlerInput): The input handler for the request.
+        email_auth_instance (Callable): A callable instance of the email
+        authentication class.
 
     Returns:
-        str: The speak output.
+        str: The speak output containing course progress information or error messages.
     """
     _ = handler_input.attributes_manager.request_attributes["_"]
-    slots = handler_input.request_envelope.request.intent.slots
+    slots = handler_input.request_envelope.request.intent.slots # type: ignore
 
-    error_message, email = get_email(email_auth_backend)
+    error_message, email = get_email(email_auth_instance)
 
     if error_message:
         return error_message
@@ -278,11 +284,11 @@ class GetCourseProgressIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input: HandlerInput) -> Response:
 
-        # Change the email auth backend to use a different authentication method.
-        email_auth_backend = AlexaEmailAuthentication(handler_input)
+        email_auth_class = get_email_auth_class()
+        email_auth_instance = email_auth_class(handler_input)
 
         speak_output = get_speak_output_get_course_progress(
-            handler_input, email_auth_backend
+            handler_input, email_auth_instance
         )
 
         return (
