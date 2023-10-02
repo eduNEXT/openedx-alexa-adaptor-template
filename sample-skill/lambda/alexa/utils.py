@@ -62,19 +62,19 @@ def get_email_auth_class() -> Callable:
     Get the email authentication class based on environment variables.
 
     This function retrieves the email authentication class to be used based
-    on the value of the "EMAIL_AUTH_CLASS" environment variable. If the variable
-    is not set or is empty, it returns the default email authentication class
-    `AlexaEmailAuthentication`.
+    on the value of the `SKILL_PROFILE_EMAIL_BACKEND` environment variable.
+    If the variable is not set or is empty, it returns the default email
+    authentication class `AlexaEmailAuthentication`.
 
     Returns:
         type: The class for email authentication based on the environment variable.
     """
-    email_auth_class = os.getenv("EMAIL_AUTH_CLASS", None)
+    skill_profile_email_backend = os.getenv("SKILL_PROFILE_EMAIL_BACKEND", None)
 
-    if not email_auth_class:
+    if not skill_profile_email_backend:
         return AlexaEmailAuthentication
 
-    module_name, class_name = email_auth_class.rsplit(".", 1)
+    module_name, class_name = skill_profile_email_backend.rsplit(".", 1)
     module = import_module(module_name)
 
     return getattr(module, class_name, AlexaEmailAuthentication)
