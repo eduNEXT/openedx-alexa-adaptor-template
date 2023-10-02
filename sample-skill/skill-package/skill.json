@@ -25,6 +25,11 @@
         }
       }
     },
+    "permissions": [
+      {
+        "name": "alexa::profile:email:read"
+      }
+    ],
     "manifestVersion": "1.0",
     "publishingInformation": {
       "distributionCountries": [],

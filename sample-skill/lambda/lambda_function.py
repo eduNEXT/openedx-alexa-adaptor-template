@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import gettext
 import logging
+from typing import Callable
 
 import ask_sdk_core.utils as ask_utils
 from ask_sdk_core.api_client import DefaultApiClient
@@ -23,7 +24,8 @@ from ask_sdk_model.response import Response
 
 from alexa import data
 from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
-from alexa.utils import make_request
+from alexa.utils import make_request, get_email_auth_class
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -72,7 +74,7 @@ def get_bearer_token() -> str | None:
     return response.get("access_token")
 
 
-def get_course_progress(username: str, course_id: str, token: str) -> float | None:
+def get_course_progress(username: str, course_id: str, token: str) -> float:
     """
     Retrieve and return the progress of a user in a specific course.
 
@@ -82,8 +84,8 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
         token (str): The Bearer token used to consume the API.
 
     Returns:
-        float | None: The progress of the student in the course as a percentage
-        (0.00 - 100.00), or None if the progress can't be retrieved.
+        float: The progress of the student in the course as a percentage
+        (0.00 - 100.00), or 0.0 if the progress can't be retrieved.
     """
     endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/grade/"
     payload = {"username": username, "course_id": course_id}
@@ -91,10 +93,10 @@ def get_course_progress(username: str, course_id: str, token: str) -> float | No
 
     response = make_request(endpoint_url, data=payload, headers=headers)
 
-    return round(response["earned_grade"]*100, 2) if response else None
+    return round(response.get("earned_grade", 0) * 100, 2)
 
 
-def get_enrollments_by_user(username: str, token: str) -> list | None:
+def get_enrollments_by_user(username: str, token: str) -> list[str]:
     """
     Retrieve a list of course enrollments for a user. Each element of
     the list is a course ID.
@@ -104,8 +106,8 @@ def get_enrollments_by_user(username: str, token: str) -> list | None:
         token (str): The Bearer token used to consume the API.
 
     Returns:
-        list[str] | None: A list of course IDs if enrollments are found,
-        None if enrollments can't be retrieved.
+        list[str]: A list of course IDs if enrollments are found,
+        empty list if enrollments can't be retrieved.
     """
     endpoint_url = f"{API_DOMAIN}/api/enrollment/v1/enrollments/"
     params = {"username": username}
@@ -113,7 +115,7 @@ def get_enrollments_by_user(username: str, token: str) -> list | None:
 
     response = make_request(endpoint_url, params=params, headers=headers)
 
-    return [result["course_id"] for result in response["results"]] if response else None
+    return [result.get("course_id") for result in response.get("results", [])]
 
 
 def get_courses_by_user(username: str, token: str) -> list | None:
@@ -167,27 +169,41 @@ def get_course_id(course_name: str, username: str, token: str) -> str | None:
     return valid_courses.get(course_name)
 
 
-def get_profile_email(handler_input: HandlerInput) -> str | None:
+def get_email(email_auth_instance: Callable) -> tuple[str | None, str | None]:
     """
-    Retrieve the email of the user associated to the Alexa account.
+    Retrieve the user's email using a flexible authentication backend.
+
+    This function is designed to retrieve the user's email address using a
+    flexible authentication backend, allowing variations based on the provided
+    `email_auth_instance`. It attempts to fetch the user's email address, and if
+    successful, returns it along with an error message (if any).
 
     Args:
-        handler_input (HandlerInput): The input handler for the request.
+        email_auth_instance (object): An instance of an authentication backend with
+        a 'get_email' method.
 
     Returns:
-        str | None: The email of the user if successfully retrieved,
-        None if the email can't be obtained.
+        tuple[str | None, str | None]: A tuple containing two elements:
+            - The error message (str) if there was an error during email retrieval,
+              otherwise None.
+            - The email (str) of the user if successfully retrieved, otherwise None.
     """
-    ups_service_client = handler_input.service_client_factory.get_ups_service()
-    return ups_service_client.get_profile_email()
+    error_message = None
+
+    email = email_auth_instance.get_email()
+
+    if not email:
+        error_message = email_auth_instance.EMAIL_ERROR_MESSAGE
+
+    return error_message, email
 
 
-def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
+def get_username_by_email(email: str, token: str) -> str | None:
     """
-    Retrieve the Open edX username associated with the Alexa account's profile email.
+    Retrieve the Open edX username associated with the email.
 
     Args:
-        profile_email (str): The email address of the user.
+        email (str): The email address of the user.
         token (str): The Bearer token used to consume the API.
 
     Returns:
@@ -195,7 +211,7 @@ def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
         None if the username can't be obtained.
     """
     endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/user/"
-    params = {"email": profile_email}
+    params = {"email": email}
     headers = {"Authorization": f"Bearer {token}"}
 
     response = make_request(endpoint_url, params=params, headers=headers)
@@ -203,20 +219,34 @@ def get_username_by_profile_email(profile_email: str, token: str) -> str | None:
     return response.get("username")
 
 
-def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
-    """"
+def get_speak_output_get_course_progress(
+    handler_input: HandlerInput, email_auth_instance: Callable
+) -> str:
+    """
     Generate the speak output for the GetCourseProgressIntent.
+
+    This function generates the spoken response for the GetCourseProgressIntent in
+    an Alexa skill. It uses the provided email authentication instance to retrieve
+    the user's email address, which is then used to fetch the course progress for a
+    specified course. If any errors occur during the process, appropriate error messages
+    are returned in the spoken response.
 
     Args:
         handler_input (HandlerInput): The input handler for the request.
+        email_auth_instance (Callable): A callable instance of the email
+        authentication class.
 
     Returns:
-        str: The speak output.
+        str: The speak output containing course progress information or error messages.
     """
     _ = handler_input.attributes_manager.request_attributes["_"]
-    slots = handler_input.request_envelope.request.intent.slots
+    slots = handler_input.request_envelope.request.intent.slots # type: ignore
 
-    profile_email = get_profile_email(handler_input)
+    error_message, email = get_email(email_auth_instance)
+
+    if error_message:
+        return error_message
+
     coursename = slots["coursename"].value.lower()
 
     token = get_bearer_token()
@@ -224,10 +254,10 @@ def get_speak_output_get_course_progress(handler_input: HandlerInput) -> str:
     if not token:
         return _(data.TOKEN_ERROR_MESSAGE)
 
-    username = get_username_by_profile_email(profile_email, token)
+    username = get_username_by_email(email, token)
 
     if not username:
-        return _(data.USER_NOT_FOUND_MESSAGE)
+        return _(data.USER_NOT_FOUND_MESSAGE).format(email)
 
     course_id = get_course_id(coursename, username, token)
 
@@ -254,7 +284,12 @@ class GetCourseProgressIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input: HandlerInput) -> Response:
 
-        speak_output = get_speak_output_get_course_progress(handler_input)
+        email_auth_class = get_email_auth_class()
+        email_auth_instance = email_auth_class(handler_input)
+
+        speak_output = get_speak_output_get_course_progress(
+            handler_input, email_auth_instance
+        )
 
         return (
             handler_input.response_builder
