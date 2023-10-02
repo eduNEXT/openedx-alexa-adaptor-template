@@ -38,18 +38,27 @@ class LaunchRequestHandler(AbstractRequestHandler):
     This handler is responsible for processing the launch request when the user
     invokes the skill. It provides a welcome message to the user.
     """
+
     def can_handle(self, handler_input: HandlerInput) -> bool:
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
         _ = handler_input.attributes_manager.request_attributes["_"]
-        speak_output = _(data.WELCOME_MESSAGE)
+        person = handler_input.request_envelope.context.system.person  # type: ignore
 
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
+        if person:
+            speak_output = _(data.WELCOME_MESSAGE).format(person.person_id)
+            return (
+                handler_input.response_builder.speak(speak_output)
                 .ask(speak_output)
                 .response
+            )
+
+        speak_output = _(data.PROFILE_NOT_RECOGNIZED_MESSAGE)
+        return (
+            handler_input.response_builder.speak(speak_output)
+            .set_should_end_session(True)
+            .response
         )
 
 
@@ -240,7 +249,7 @@ def get_speak_output_get_course_progress(
         str: The speak output containing course progress information or error messages.
     """
     _ = handler_input.attributes_manager.request_attributes["_"]
-    slots = handler_input.request_envelope.request.intent.slots # type: ignore
+    slots = handler_input.request_envelope.request.intent.slots  # type: ignore
 
     error_message, email = get_email(email_auth_instance)
 
@@ -279,11 +288,11 @@ class GetCourseProgressIntentHandler(AbstractRequestHandler):
     This handler processes user requests to retrieve and provide course progress
     information from the Open edX platform.
     """
+
     def can_handle(self, handler_input: HandlerInput) -> bool:
         return ask_utils.is_intent_name("GetCourseProgressIntent")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
-
         email_auth_class = get_email_auth_class()
         email_auth_instance = email_auth_class(handler_input)
 
@@ -292,10 +301,9 @@ class GetCourseProgressIntentHandler(AbstractRequestHandler):
         )
 
         return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+            handler_input.response_builder.speak(speak_output)
+            .ask(speak_output)
+            .response
         )
 
 
@@ -309,10 +317,9 @@ class HelpIntentHandler(AbstractRequestHandler):
         _ = handler_input.attributes_manager.request_attributes["_"]
         speak_output = _(data.HELP_MESSAGE)
         return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+            handler_input.response_builder.speak(speak_output)
+            .ask(speak_output)
+            .response
         )
 
 
@@ -320,17 +327,14 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
     """Single handler for Cancel and Stop Intent."""
 
     def can_handle(self, handler_input: HandlerInput) -> bool:
-        return (ask_utils.is_intent_name("AMAZON.CancelIntent")(handler_input) or
-                ask_utils.is_intent_name("AMAZON.StopIntent")(handler_input))
+        return ask_utils.is_intent_name("AMAZON.CancelIntent")(
+            handler_input
+        ) or ask_utils.is_intent_name("AMAZON.StopIntent")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Response:
         _ = handler_input.attributes_manager.request_attributes["_"]
         speak_output = _(data.CANCEL_OR_STOP_MESSAGE)
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .response
-        )
+        return handler_input.response_builder.speak(speak_output).response
 
 
 class FallbackIntentHandler(AbstractRequestHandler):
@@ -373,10 +377,9 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
         _ = handler_input.attributes_manager.request_attributes["_"]
         speak_output = _(data.CATCH_ALL_MESSAGE)
         return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
+            handler_input.response_builder.speak(speak_output)
+            .ask(speak_output)
+            .response
         )
 
 
@@ -387,6 +390,7 @@ class LocalizationInterceptor(AbstractRequestInterceptor):
     This interceptor is responsible for handling the localization of the Skill.
     It retrieves the locale of the request and sets the appropriate translation
     """
+
     def process(self, handler_input: HandlerInput) -> None:
         """Add locale specific function to request attributes."""
         locale = handler_input.request_envelope.request.locale
