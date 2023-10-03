@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-21 22:32-0500\n"
+"POT-Creation-Date: 2023-10-02 13:42-0500\n"
 "PO-Revision-Date: 2023-09-21 22:33-0500\n"
 "Last-Translator: Bryann Valderrama <bryann.valderrama@edunext.co>\n"
 "Language-Team: English\n"
@@ -17,52 +17,67 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: lambda/auth/backends/base.py:21
+msgid "It was not possible to obtain the user's email."
+msgstr ""
+
+#: lambda/auth/backends/alexa_ups.py:29
+msgid ""
+"It was not possible to obtain the user's email. Please enable email "
+"permissions in the Alexa skill settings via the Alexa app."
+msgstr ""
+
 #: lambda/alexa/data.py:10
 msgid ""
-"Welcome, this is the Open edX assistant, I can provide you information about "
-"student metrics and important aspects of a course."
+"Welcome <alexa:name type=\"first\" personId=\"{}\"/>, this is the Open edX "
+"assistant, I can provide you information about student metrics and important "
+"aspects of a course."
 msgstr ""
 "Welcome, this is the Open edX assistant, I can provide you information about "
 "student metrics and important aspects of a course."
 
 #: lambda/alexa/data.py:11
-msgid "It was not possible to consult the progress due to an access error."
-msgstr "It was not possible to consult the progress due to an access error."
+msgid "I'm sorry, I can't recognize your profile. Please, try again."
+msgstr ""
 
 #: lambda/alexa/data.py:12
-msgid "The course is not found. Try with a valid one."
-msgstr "The course is not found. Try with a valid one."
+msgid "It was not possible to consult the progress due to an access error."
+msgstr ""
 
 #: lambda/alexa/data.py:13
-msgid "The user is not enrolled in the course. Try with a valid one."
-msgstr "The user is not enrolled in the course. Try with a valid one."
+msgid "The course is not found. Try with a valid one."
+msgstr ""
 
 #: lambda/alexa/data.py:14
-msgid "The user is not found. Try with a valid one."
-msgstr "The user is not found. Try with a valid one."
+msgid "The user is not enrolled in the course. Try with a valid one."
+msgstr ""
 
 #: lambda/alexa/data.py:15
+msgid "The user with email '{}' is not found. Try with a valid one."
+msgstr ""
+
+#: lambda/alexa/data.py:16
 msgid ""
 "The progress for the student with username {} in the course of {} is {}%."
 msgstr ""
 "The progress for the student with username {} in the course of {} is {}%."
 
-#: lambda/alexa/data.py:16
-msgid "Hi, try asking for your progress in some course"
-msgstr "Hi, try asking for your progress in some course"
-
 #: lambda/alexa/data.py:17
-msgid "See you soon!"
-msgstr "See you soon!"
+msgid "Hi, try asking for your progress in some course"
+msgstr ""
 
 #: lambda/alexa/data.py:18
-msgid "Hmm, I'm not sure. You can say Hello or Help. What do you want to do?"
-msgstr "Hmm, I'm not sure. You can say Hello or Help. What do you want to do?"
+msgid "See you soon!"
+msgstr ""
 
 #: lambda/alexa/data.py:19
-msgid "I did not understand you. How can I help you?"
-msgstr "I did not understand you. How can I help you?"
+msgid "Hmm, I'm not sure. You can say Hello or Help. What do you want to do?"
+msgstr ""
 
 #: lambda/alexa/data.py:20
+msgid "I did not understand you. How can I help you?"
+msgstr ""
+
+#: lambda/alexa/data.py:21
 msgid "Sorry, I've had trouble doing what you asked me. Please try again."
-msgstr "Sorry, I've had trouble doing what you asked me. Please try again."
+msgstr ""

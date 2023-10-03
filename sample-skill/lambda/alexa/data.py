@@ -7,7 +7,9 @@ assistant to provide answers to user queries.
 
 from gettext import gettext as _
 
-WELCOME_MESSAGE = _("Welcome, this is the Open edX assistant, I can provide you information about student metrics and important aspects of a course.")
+
+WELCOME_MESSAGE = _('Welcome <alexa:name type="first" personId="{}"/>, this is the Open edX assistant, I can provide you information about student metrics and important aspects of a course.')
+PROFILE_NOT_RECOGNIZED_MESSAGE = _("I'm sorry, I can't recognize your profile. Please, try again.")
 TOKEN_ERROR_MESSAGE = _("It was not possible to consult the progress due to an access error.")
 COURSE_NOT_FOUND_MESSAGE = _("The course is not found. Try with a valid one.")
 USER_NOT_ENROLLED_MESSAGE = _("The user is not enrolled in the course. Try with a valid one.")

@@ -28,6 +28,9 @@
     "permissions": [
       {
         "name": "alexa::profile:email:read"
+      },
+      {
+        "name": "alexa::person_id:read"
       }
     ],
     "manifestVersion": "1.0",
