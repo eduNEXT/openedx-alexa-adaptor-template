@@ -1,63 +1,147 @@
-# What is ASK CLI?
+# Table of Contents
 
-ASK CLI *(Alexa Skills Kit Command Line Interface)* is a command line tool provided by Amazon for developers working on creating and managing voice skills for Alexa-compatible devices, such as Amazon Echo devices. The ASK CLI simplifies various tasks related to Alexa skill development, making it easy to create and maintain these voice applications. All the steps to perform its installation are listed below. More information about this process can be found at the [following link](https://developer.amazon.com/en-US/docs/alexa/smapi/quick-start-alexa-skills-kit-command-line-interface.html).
+- [Purpose](#purpose)
+- [Usage](#usage)
+- [The Sample Skill](#the-sample-skill)
+- [Getting Help](#getting-help)
+- [Contributing](#contributing)
+- [License](#license)
 
+## Purpose
 
-# Prerequisites for installing ASK CLI
+This repository contains a sample Alexa skill that allows users to connect to
+Open edX. With this skill, users can access course information, check grades,
+and perform other Open edX-related tasks using voice commands with their
+Alexa-enabled devices.
 
-Before installing the ASK CLI it is essential to have:
+## Usage
 
-1. An [Amazon Developer account](https://developer.amazon.com/).
+To use this Alexa skill, you can use the Alexa simulator in the Amazon
+Developer Console or an Alexa-enabled device. The skill is currently available
+in English and Spanish.
 
-Also, you must install on your computer:
+The current version of the skill supports the following interactions:
 
-1. Node.js and `npm`. Install Node.js from version 14 or higher.
-2. Git.
+- **Launch the skill**: "Alexa, open educational assistant."
 
+  > _Alexa Response_: "Welcome \<first_name\>, this is the Open edX assistant,
+  > I can provide you information about student metrics and important aspects
+  > of a course."
 
-# Install and Initialize the ASK CLI
+  e.g:
 
-Using `npm` install the ASK CLI.
+  > "_Alexa Response_: Welcome **John**, this is the Open edX assistant, I can
+  > provide you information about student metrics and important aspects of a
+  > course."
 
-- If you are using **Windows** you must install the windows-build-tools package, to do this run PowerShell as administrator and run `npm install -g -production windows-build-tools`. Then run the command `npm install -g ask-cli`.
+- **Get course progress**: "Alexa, give me my progress in the course of
+  \<course-name\>."
 
-- If you are using **Linux/macOS** just run the command `sudo npm install -g ask-cli`.
+  > _Alexa Response_: "The progress for the student with
+  > username \<username\> in the course of \<coursename\> is \<percentage\>.
 
-You are now ready to configure the ASK CLI.
+  e.g:
 
+  > "_Alexa Response_: The progress for the student with username **johndoe**
+  > in the course of **Introduction to Linux** is **50%**."
 
-# How to configure ASK CLI?
+### Develop
 
-To use the ASK CLI for the first time you need to configure it with your Amazon Developer account.
+### Build
 
-Run the `ask configure` command in your computer, and perform the following steps:
+### Deploy
 
-1. Create a new profile, and assign it a name.
-Login to the Amazon Developer account from the browser window, and confirm from the console `(Y)`.
-3. You do not need to associate the AWS profile with the ASK CLI, as it will be an [Alexa-hosted Skill](https://developer.amazon.com/en-US/docs/alexa/hosted-skills/build-a-skill-end-to-end-using-an-alexa-hosted-skill.html), so type `(n)` from the console.
+## The Sample Skill
 
-These steps will allow to execute any command using the ASK CLI.
+### Purpose
 
+The sample skill included in this repository is a basic demonstration of how to
+integrate Alexa with Open edX. It showcases how to handle user requests,
+authenticate with Open edX, and retrieve course data. Developers can use this
+as a starting point to build more advanced interactions for Open edX.
 
-# ASK CLI Commands
+### Requirements
 
-Among the most useful commands in the ASK CLI are:
+Before setting up and running this sample skill, ensure you have the following
+prerequisites:
 
-- `ask new`: Allows you to create a Skill from scratch.
-- `ask init --hosted-skill-id <hosted-skill-id>`: Allows to clone a Skill hosted in the current directory. The Skill ID can be obtained from the Amazon Development console in the Skills listing.
-- `ask dialog`: Allows you to test the Skill from the console with an Alexa simulator.
+1. An [Amazon Developer account](https://developer.amazon.com/) for creating
+   and configuring the skill.
+2. Access to an Open edX platform with admin privileges.
+3. ASK CLI installed and configured. Follow the steps in the
+   [ASK CLI documentation](./docs/1-ask-cli.md)
+4. `eox-core` installed and configured. Follow the steps in the
+   [Eox-core documentation](./docs/2-eox-core.md)
 
-To see a detailed description of all ASK CLI commands go to the [following link](https://developer.amazon.com/en-US/docs/alexa/smapi/ask-cli-command-reference.html).
+### Permissions
 
+This skill requires some permissions in the alexa account to work properly.
+Follow the steps below to configure the permissions:
 
-# How to configure `eox-core`?
+1. Open the Alexa app.
+2. Go to "More" → "Settings" → "Skills & Games" → "Your Skills".
+3. Select "Open edX Assistant".
+4. Select "Settings".
+5. Select "Manage account permissions".
+6. Enable **Email Address** permission.
+7. Save the changes.
 
-1. Create a Django OAuth Toolkit application at `<lms_domain>admin/oauth2_provider/application/add/`, copy the `client-id` and `client-secret`. Note the following when creating the application from the Django admin:
+### Testing in the Amazon Developers Console
 
-    - The **Client id** and **Client secret** are automatically generated, do not modify them.
-    - The selected **User** should have administrator permissions.
-    - Add to **Redirect uris** the URL of the LMS domain of the platform.
-    - Select **Client type** as "Confidential"
-    - Select **Authorization grant type** as "Client credentials"
+To test the sample Alexa skill, follow these steps:
 
-    ![add-app](https://github.com/eduNEXT/openedx-alexa-adaptor-template/assets/64033729/b7f28637-d83c-4f46-918b-8ec8f0f0831c)
+1. Login to the [Amazon Developer Console](https://developer.amazon.com/alexa/console/ask).
+2. Select the Skill you want to test.
+3. Select the "Test" tab.
+4. Select "Development" from the "Skill testing is enabled in:" dropdown.
+5. As the Skill uses voice profiles, to test interactions you need to do it by
+   voice. If you are known profile, you can interact with the skill without
+   problems. If you are not a known profile, the skill show you a message
+   indicating that you are not a known profile and the interaction will finish.
+
+## Getting Help
+
+If you encounter any issues or have questions about using this Alexa skill,
+feel free to create an issue in this repository. Our community and maintainers
+will be happy to assist you.
+
+## License
+
+The code in this repository is licensed under the AGPL-3.0 unless otherwise
+noted.
+
+Please see LICENSE.txt for details.
+
+## Contributing
+
+We welcome contributions to improve this Alexa skill and make it more robust.
+If you'd like to contribute, please follow these guidelines:
+
+1. Fork the repository.
+2. Create a new branch for your changes.
+3. Make your changes and commit them with clear, concise commit messages.
+4. Push your changes to your fork.
+5. Create a pull request to merge your changes into the main repository.
+
+Please ensure that your code follows best practices.
+
+Thank you for your interest in contributing to this project!
+
+### Translations
+
+This sample skill is initially available in English and Spanish. You can help
+by translating this component to other languages. Follow the steps below:
+
+#### Update Translations
+
+#### Create Translations
+
+1. Create a folder for the translations in `locale/`, eg:
+   `locale/fr_FR/LC_MESSAGES/`, and create your text.po file with all the
+   translations.
+2. Run make compile_translations, this will generate the .mo file.
+3. Create a pull request with your changes!
+
+## Reporting Security Issues
+
+Please do not report a potential security issue in public. Please email <security@edunext.co>.
