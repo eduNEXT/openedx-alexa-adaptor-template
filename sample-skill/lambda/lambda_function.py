@@ -23,7 +23,7 @@ from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
 from alexa import data
-from alexa.constants import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
+from alexa.settings import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
 from alexa.utils import make_request, get_email_auth_class
 
 
