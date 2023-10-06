@@ -192,6 +192,20 @@ Follow the steps below to configure the permissions:
 6. Enable "Email Address" permission.
 7. Save the changes.
 
+Additionally, if you want to use the skill you need to enable the "Voice
+Profile" permission. Follow the steps below to enable (if you don't have
+enabled) the "Voice Profile" permission:
+
+1. Open the Alexa app (Android or iOS). **IMPORTANT**: The account must be the
+   same account that you use to create the skill in the Alexa Developer
+   Console.
+2. Go to "More" → "Settings" → "Your Profile & Family".
+3. Select your profile.
+4. Select "Voice ID".
+5. If you don't have set up your Voice ID, perform the setup.
+6. Go to "Voice ID settings".
+7. Enable "Personalize Skills" permission.
+
 ### Enabling Spanish Support
 
 As default, the skill only is available in English. If you want to activate
