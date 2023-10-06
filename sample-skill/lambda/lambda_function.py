@@ -23,7 +23,12 @@ from ask_sdk_core.skill_builder import CustomSkillBuilder
 from ask_sdk_model.response import Response
 
 from alexa import data
-from alexa.settings import API_DOMAIN, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE
+from alexa.settings import (
+    LMS_DOMAIN,
+    EOX_CORE_CLIENT_ID,
+    EOX_CORE_CLIENT_SECRET,
+    EOX_CORE_GRANT_TYPE,
+)
 from alexa.utils import make_request, get_email_auth_class
 
 
@@ -70,11 +75,11 @@ def get_bearer_token() -> str | None:
         str | None: The Bearer token if successfully retrieved,
         None if the token can't be obtained.
     """
-    endpoint_url = f"{API_DOMAIN}/oauth2/access_token"
+    endpoint_url = f"{LMS_DOMAIN}/oauth2/access_token"
     payload = (
-        f"client_id={CLIENT_ID}&"
-        f"client_secret={CLIENT_SECRET}&"
-        f"grant_type={GRANT_TYPE}"
+        f"client_id={EOX_CORE_CLIENT_ID}&"
+        f"client_secret={EOX_CORE_CLIENT_SECRET}&"
+        f"grant_type={EOX_CORE_GRANT_TYPE}"
     )
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
@@ -96,7 +101,7 @@ def get_course_progress(username: str, course_id: str, token: str) -> float:
         float: The progress of the student in the course as a percentage
         (0.00 - 100.00), or 0.0 if the progress can't be retrieved.
     """
-    endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/grade/"
+    endpoint_url = f"{LMS_DOMAIN}/eox-core/api/v1/grade/"
     payload = {"username": username, "course_id": course_id}
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -118,7 +123,7 @@ def get_enrollments_by_user(username: str, token: str) -> list[str]:
         list[str]: A list of course IDs if enrollments are found,
         empty list if enrollments can't be retrieved.
     """
-    endpoint_url = f"{API_DOMAIN}/api/enrollment/v1/enrollments/"
+    endpoint_url = f"{LMS_DOMAIN}/api/enrollment/v1/enrollments/"
     params = {"username": username}
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -139,7 +144,7 @@ def get_courses_by_user(username: str, token: str) -> list | None:
         list | None: A list of courses if successfully retrieved,
         None if the courses can't be obtained.
     """
-    endpoint_url = f"{API_DOMAIN}/api/courses/v1/courses/"
+    endpoint_url = f"{LMS_DOMAIN}/api/courses/v1/courses/"
     params = {"username": username}
     headers = {"Authorization": f"Bearer {token}"}
 
@@ -219,7 +224,7 @@ def get_username_by_email(email: str, token: str) -> str | None:
         str | None: The username of the user if successfully retrieved,
         None if the username can't be obtained.
     """
-    endpoint_url = f"{API_DOMAIN}/eox-core/api/v1/user/"
+    endpoint_url = f"{LMS_DOMAIN}/eox-core/api/v1/user/"
     params = {"email": email}
     headers = {"Authorization": f"Bearer {token}"}
 

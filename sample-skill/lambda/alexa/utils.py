@@ -10,7 +10,7 @@ from typing import Callable, Optional
 import requests
 from auth.backends.alexa_ups import AlexaEmailAuthentication
 
-from alexa.settings import MAX_TIMEOUT, SKILL_PROFILE_EMAIL_BACKEND
+from alexa.settings import REQUEST_MAX_TIMEOUT, SKILL_PROFILE_EMAIL_BACKEND
 
 
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -40,10 +40,10 @@ def make_request(
     """
     if method == "GET":
         response = requests.get(
-            url, data=data, params=params, headers=headers, timeout=MAX_TIMEOUT
+            url, data=data, params=params, headers=headers, timeout=REQUEST_MAX_TIMEOUT
         )
     elif method == "POST":
-        response = requests.post(url, data=data, headers=headers, timeout=MAX_TIMEOUT)
+        response = requests.post(url, data=data, headers=headers, timeout=REQUEST_MAX_TIMEOUT)
     else:
         return {}
 
