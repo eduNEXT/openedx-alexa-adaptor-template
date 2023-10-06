@@ -2,11 +2,12 @@
 
 ## What is `eox-core`?
 
-Eox-core (A.K.A. Edunext Open extensions) is an openedx plugin, for the
-edx-platform that adds multiple API endpoints in order to extend the
-functionality of the edx-platform and avoid changing the base code directly.
-These API endpoints includes bulk creation of pre-activated users (for example,
-skip sending an activation email), enrollments and pre-enrollment operations.
+[Eox-core](https://github.com/eduNEXT/eox-core/) (A.K.A. eduNEXT Open
+extensions) is an openedx plugin, for the edx-platform that adds multiple API
+endpoints in order to extend the functionality of the edx-platform and avoid
+changing the base code directly. These API endpoints includes bulk creation of
+pre-activated users (for example, skip sending an activation email),
+enrollments and pre-enrollment operations.
 
 ## Why `eox-core`?
 

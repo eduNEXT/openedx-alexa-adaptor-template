@@ -47,9 +47,29 @@ The current version of the skill supports the following interactions:
 
 ### Develop
 
-### Build
+We created a `Makefile` to help you to prepare your environment and init with
+the development of the skill. Before to use the commands, ensure that you have
+the following requirements:
+
+- Python 3.8, we recommend to use a virtual environment to avoid conflicts with other python projects.
+- ASK CLI, follow the steps in the [ASK CLI documentation](./docs/1-ask-cli.md)
+
+After to ensure that you have the requirements, you can use the following
+commands:
+
+- `make configure`: Configure the ASK CLI.
+- `make build`: Create a new skill based in the sample skill.
+- `make bootstrap`: Execute the above `configure` and `build`` commands.
 
 ### Deploy
+
+Make deploy is very easy. As the skill is alexa-hosted, you can deploy the skill using only git commands. Follow the steps below:
+
+1. Make your changes.
+2. Commit your changes.
+3. Push your changes to the repository. Ensure that you push to the `master` branch.
+
+After to push your changes, the skill will be deployed automatically, only you need to wait a few seconds to see the changes in the skill in the Alexa Developer Console.
 
 ## The Sample Skill
 
@@ -129,18 +149,8 @@ Thank you for your interest in contributing to this project!
 
 ### Translations
 
-This sample skill is initially available in English and Spanish. You can help
-by translating this component to other languages. Follow the steps below:
-
-#### Update Translations
-
-#### Create Translations
-
-1. Create a folder for the translations in `locale/`, eg:
-   `locale/fr_FR/LC_MESSAGES/`, and create your text.po file with all the
-   translations.
-2. Run make compile_translations, this will generate the .mo file.
-3. Create a pull request with your changes!
+This sample skill is initially available in English and Spanish. If you want
+update your translation, please follow the steps below:
 
 ## Reporting Security Issues
 
