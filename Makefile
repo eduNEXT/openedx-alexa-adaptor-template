@@ -1,7 +1,19 @@
 SKILL_FOLDER := skills
 SAMPLE_SKILL_FOLDER := sample-skill
 
-build:
+configure:
+
+	@echo "First, you need to configure your ASK CLI...\n"
+	@echo "1. Create a new profile"
+	@echo "2. Enter the name of your profile"
+	@echo "3. Login with your Amazon Developer account in the browser"
+	@echo "4. Confirm the login in the terminal pressing the 'y' key"
+	@echo "5. It is not necessary to link an AWS account, so press the 'n' key\n"
+	@echo "Press enter to start with the configuration..." && read _
+	@ask configure
+	@echo "\n"
+
+setup:
 
 	@echo "Now, you need to create a new skill...\n"
 	@echo "The parameters that you must enter are:"
@@ -23,22 +35,10 @@ build:
 	&& cd $(SKILL_FOLDER)/$$skill_folder \
 	&& echo "Saving changes and pushing..." && sleep 2 \
 	&& git add . && git commit -m "feat: add sample skill" && git push origin master
-	@echo "Please, wait a few minutes until the deployment is complete. You can check the status \"
+	@echo "\nPlease, wait a few minutes until the deployment is complete. You can check the status \
 	of your deployment in the Alexa Developer Console."
 
-configure:
-
-	@echo "First, you need to configure your ASK CLI...\n"
-	@echo "1. Create a new profile"
-	@echo "2. Enter the name of your profile"
-	@echo "3. Login with your Amazon Developer account in the browser"
-	@echo "4. Confirm the login in the terminal pressing the 'y' key"
-	@echo "5. It is not necessary to link an AWS account, so press the 'n' key\n"
-	@echo "Press enter to start with the configuration..." && read _
-	@ask configure
-	@echo "\n"
-
-bootstrap: configure build
+bootstrap: configure setup
 
 
-.PHONY: bootstrap configure build
+.PHONY: bootstrap configure setup
