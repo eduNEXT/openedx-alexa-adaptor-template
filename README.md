@@ -115,8 +115,8 @@ prerequisites:
 
 ### Development
 
-We created a `Makefile` to help you to prepare your environment and init with
-the development of the skill. Before to use the commands, ensure that you have
+We created a `Makefile` to help you to prepare and initialize your environment
+for Alexa's skill development. Before using the commands, ensure that you have
 the following requirements:
 
 - Python 3.8, we recommend to use a virtual environment to avoid conflicts with
@@ -140,8 +140,8 @@ Under the hood, the command executes the following commands:
 
 ### Deployment
 
-Make deploy is very easy!. As the skill is [alexa-hosted](https://developer.amazon.com/en-US/docs/alexa/hosted-skills/build-a-skill-end-to-end-using-an-alexa-hosted-skill.html),
-you can deploy the skill using only git commands. Follow the steps below:
+As the skill is [alexa-hosted](https://developer.amazon.com/en-US/docs/alexa/hosted-skills/build-a-skill-end-to-end-using-an-alexa-hosted-skill.html),
+you can deploy the skill using only git commands. So, deployment is very straightforward!. Follow the steps below:
 
 1. Go to the created skill in the `skills/<skill-name>/` folder, where
    `<skill-name>` is the name of your skill. e.g: `skills/openedx-skill/`.
@@ -173,6 +173,10 @@ steps below to configure the environment variables:
     EOX_CORE_GRANT_TYPE=client_credentials
     REQUEST_MAX_TIMEOUT=<your-request-max-timeout> # e.g: 5
    ```
+
+   **NOTE**: The `EOX_CORE_CLIENT_ID`, `EOX_CORE_CLIENT_SECRET`, and
+   `EOX_CORE_GRANT_TYPE` environment variables are provided by the [`eox-core`
+   configuration](./docs/2-eox-core.md) explained in the prerequisites section.
 
 4. Save the changes.
 5. Commit and push the changes to the repository.
@@ -208,7 +212,7 @@ enabled) the "Voice Profile" permission:
 
 ### Enabling Spanish Support
 
-As default, the skill only is available in English. If you want to activate
+By default, the skill only recognizes in English. If you want to activate
 Spanish, you need to follow the steps below:
 
 1. Go to the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask).
@@ -231,11 +235,11 @@ To test the sample Alexa skill, follow these steps:
 4. Select "Development" from the "Skill testing is enabled in:" dropdown.
 5. As the Skill uses voice profiles, to test interactions you need to do it by
    voice. If you are known profile, you can interact with the skill without
-   problems. If you are not a known profile, the skill show you a message
+   any issues. If you are not a known profile, the skill show you a message
    indicating that you are not a known profile and the interaction will finish.
 
-Also, you can test the skill using the Alexa app, only ensure that you are
-using the same account that you use to create the skill in the Alexa Developer
+Also, you can test the skill using the Alexa app, be sure you are using the
+same account you use to create the skill in the Alexa Developer.
 
 ## Working with the Skill
 
