@@ -142,7 +142,7 @@ Under the hood, the command executes the following commands:
 
 As the skill is [alexa-hosted](https://developer.amazon.com/en-US/docs/alexa/hosted-skills/build-a-skill-end-to-end-using-an-alexa-hosted-skill.html),
 you can deploy the skill using only git commands. So, deployment is very
-straightforward!. Follow the steps below:
+straightforward! Follow the steps below:
 
 1. Go to the created skill in the `skills/<skill-name>/` folder, where
    `<skill-name>` is the name of your skill. e.g: `skills/openedx-skill/`.
@@ -150,9 +150,9 @@ straightforward!. Follow the steps below:
 3. Commit your changes.
 4. Push your changes to the repository. Ensure that you push to the `master` branch.
 
-After to push your changes, the skill will be deployed automatically, only you
-need to wait a few minutes to see the changes in the skill in the Amazon Alexa
-Console.
+After you push your changes, the skill will be deployed automatically, you'll
+only you need to wait a few minutes to see the changes in the skill in the
+Amazon Alexa Console.
 
 ## Configuring the Skill
 
@@ -197,8 +197,8 @@ Follow the steps below to configure the permissions:
 7. Save the changes.
 
 Additionally, if you want to use the skill you need to enable the "Voice
-Profile" permission. Follow the steps below to enable (if you don't have
-enabled) the "Voice Profile" permission:
+Profile" permission. Follow the steps below to enable (if you haven't) the
+"Voice Profile" permission:
 
 1. Open the Alexa app (Android or iOS). **IMPORTANT**: The account must be the
    same account that you use to create the skill in the Amazon Alexa Console.
