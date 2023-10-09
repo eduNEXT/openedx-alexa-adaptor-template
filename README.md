@@ -22,7 +22,7 @@
 
 - [Testing the Skill](#testing-the-skill)
 
-  - [Testing In Amazon Developer Console](#testing-in-amazon-developer-console)
+  - [Testing In Amazon Alexa Console](#testing-in-amazon-alexa-console)
 
 - [Working with the Skill](#working-with-the-skill)
 
@@ -69,7 +69,7 @@ The sample skill includes the following features:
 ### Usage
 
 To use this Alexa skill, you can use the Alexa simulator in the Amazon
-Developer Console or an Alexa-enabled device. The skill is available in English
+Alexa Console or an Alexa-enabled device. The skill is available in English
 and Spanish. The current version of the skill supports the following
 interactions:
 
@@ -135,13 +135,14 @@ Under the hood, the command executes the following commands:
 
 - `make configure`: Configure the ASK CLI with your Amazon Developer account.
 - `make setup`: Create a new skill based in the sample skill. This command
-  creates a new skill based in the our sample-skill in the Alexa Developer
+  creates a new skill based in the our sample-skill in the Amazon Alexa
   Console, and a new git repository in the `skills/` folder.
 
 ### Deployment
 
 As the skill is [alexa-hosted](https://developer.amazon.com/en-US/docs/alexa/hosted-skills/build-a-skill-end-to-end-using-an-alexa-hosted-skill.html),
-you can deploy the skill using only git commands. So, deployment is very straightforward!. Follow the steps below:
+you can deploy the skill using only git commands. So, deployment is very
+straightforward!. Follow the steps below:
 
 1. Go to the created skill in the `skills/<skill-name>/` folder, where
    `<skill-name>` is the name of your skill. e.g: `skills/openedx-skill/`.
@@ -150,8 +151,8 @@ you can deploy the skill using only git commands. So, deployment is very straigh
 4. Push your changes to the repository. Ensure that you push to the `master` branch.
 
 After to push your changes, the skill will be deployed automatically, only you
-need to wait a few minutes to see the changes in the skill in the Alexa
-Developer Console.
+need to wait a few minutes to see the changes in the skill in the Amazon Alexa
+Console.
 
 ## Configuring the Skill
 
@@ -187,8 +188,7 @@ This skill requires some permissions in the Alexa account to work properly.
 Follow the steps below to configure the permissions:
 
 1. Open the Alexa app (Android or iOS). **IMPORTANT**: The account must be the
-   same account that you use to create the skill in the Alexa Developer
-   Console.
+   same account that you use to create the skill in the Amazon Alexa Console.
 2. Go to "More" → "Skills & Games" → "Your Skills".
 3. Select the skill you want to configure. e.g: "Open edX Assistant".
 4. Select "Settings".
@@ -201,8 +201,7 @@ Profile" permission. Follow the steps below to enable (if you don't have
 enabled) the "Voice Profile" permission:
 
 1. Open the Alexa app (Android or iOS). **IMPORTANT**: The account must be the
-   same account that you use to create the skill in the Alexa Developer
-   Console.
+   same account that you use to create the skill in the Amazon Alexa Console.
 2. Go to "More" → "Settings" → "Your Profile & Family".
 3. Select your profile.
 4. Select "Voice ID".
@@ -215,7 +214,7 @@ enabled) the "Voice Profile" permission:
 By default, the skill only recognizes in English. If you want to activate
 Spanish, you need to follow the steps below:
 
-1. Go to the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask).
+1. Go to the [Amazon Alexa Console](https://developer.amazon.com/alexa/console/ask).
 2. Select the skill you want to configure.
 3. Select the "Build" tab.
 4. Select "Language Settings".
@@ -225,11 +224,11 @@ Spanish, you need to follow the steps below:
 
 ## Testing the Skill
 
-### Testing in Amazon Developer Console
+### Testing in Amazon Alexa Console
 
 To test the sample Alexa skill, follow these steps:
 
-1. Go to the [Amazon Developer Console](https://developer.amazon.com/alexa/console/ask).
+1. Go to the [Amazon Alexa Console](https://developer.amazon.com/alexa/console/ask).
 2. Select the Skill you want to test.
 3. Select the "Test" tab.
 4. Select "Development" from the "Skill testing is enabled in:" dropdown.
