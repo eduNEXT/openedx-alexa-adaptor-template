@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-02 13:42-0500\n"
+"POT-Creation-Date: 2023-10-09 16:07-0500\n"
 "PO-Revision-Date: 2023-09-21 22:33-0500\n"
 "Last-Translator: Bryann Valderrama <bryann.valderrama@edunext.co>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lambda/auth/backends/base.py:21
+#: auth/backends/base.py:21
 msgid "It was not possible to obtain the user's email."
 msgstr "No fue posible obtener el correo electrónico del usuario."
 
-#: lambda/auth/backends/alexa_ups.py:29
+#: auth/backends/alexa_ups.py:30
 msgid ""
 "It was not possible to obtain the user's email. Please enable email "
 "permissions in the Alexa skill settings via the Alexa app."
@@ -30,62 +30,63 @@ msgstr ""
 "habilite los permisos de correo electrónico en la configuración de la "
 "habilidad de Alexa a través de la aplicación de Alexa."
 
-#: lambda/alexa/data.py:10
+#: alexa/data.py:11
 msgid ""
 "Welcome <alexa:name type=\"first\" personId=\"{}\"/>, this is the Open edX "
 "assistant, I can provide you information about student metrics and important "
 "aspects of a course."
 msgstr ""
-"Bienvenido <alexa:name type=\"first\" personId=\"{}\"/>, este es el asistente "
-"de Open edX, puedo proporcionarte información sobre las métricas de los "
-"estudiantes y aspectos importantes de un curso."
+"Bienvenido <alexa:name type=\"first\" personId=\"{}\"/>, este es el "
+"asistente de Open edX, puedo proporcionarte información sobre las métricas "
+"de los estudiantes y aspectos importantes de un curso."
 
-#: lambda/alexa/data.py:11
+#: alexa/data.py:12
 msgid "I'm sorry, I can't recognize your profile. Please, try again."
 msgstr ""
 "Lo siento, no puedo reconocer tu perfil. Por favor, inténtalo de nuevo."
 
-#: lambda/alexa/data.py:12
+#: alexa/data.py:13
 msgid "It was not possible to consult the progress due to an access error."
 msgstr "No fue posible consultar el progreso por un error de acceso."
 
-#: lambda/alexa/data.py:13
+#: alexa/data.py:14
 msgid "The course is not found. Try with a valid one."
 msgstr "El curso no se encuentra. Intente con uno válido."
 
-#: lambda/alexa/data.py:14
+#: alexa/data.py:15
 msgid "The user is not enrolled in the course. Try with a valid one."
 msgstr "El usuario no está inscrito en el curso. Intente con uno válido."
 
-#: lambda/alexa/data.py:15
+#: alexa/data.py:16
 msgid "The user with email '{}' is not found. Try with a valid one."
 msgstr ""
-"El usuario con correo electrónico '{}' no se encuentra. Intente con uno válido."
+"El usuario con correo electrónico '{}' no se encuentra. Intente con uno "
+"válido."
 
-#: lambda/alexa/data.py:16
+#: alexa/data.py:17
 msgid ""
 "The progress for the student with username {} in the course of {} is {}%."
 msgstr ""
 "El progreso para el estudiante con nombre de usuario {} en el curso de {} es "
 "{}%."
 
-#: lambda/alexa/data.py:17
+#: alexa/data.py:18
 msgid "Hi, try asking for your progress in some course"
 msgstr "Hola, intenta pidiendo tu progreso en algún curso"
 
-#: lambda/alexa/data.py:18
+#: alexa/data.py:19
 msgid "See you soon!"
 msgstr "!Hasta pronto!"
 
-#: lambda/alexa/data.py:19
+#: alexa/data.py:20
 msgid "Hmm, I'm not sure. You can say Hello or Help. What do you want to do?"
 msgstr "Hmm, no estoy segura. Puedes decir Hola o Ayuda. ¿Qué quieres hacer?"
 
-#: lambda/alexa/data.py:20
+#: alexa/data.py:21
 msgid "I did not understand you. How can I help you?"
 msgstr "No te entendí. ¿En qué puedo ayudarte?"
 
-#: lambda/alexa/data.py:21
+#: alexa/data.py:22
 msgid "Sorry, I've had trouble doing what you asked me. Please try again."
 msgstr ""
 "Lo siento, he tenido problemas para hacer lo que me pedías. Por favor, "
