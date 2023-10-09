@@ -8,17 +8,13 @@ from importlib import import_module
 from typing import Callable, Optional
 
 import requests
-from dotenv import load_dotenv
-
-from constants import MAX_TIMEOUT
 from auth.backends.alexa_ups import AlexaEmailAuthentication
+
+from alexa.settings import REQUEST_MAX_TIMEOUT, SKILL_PROFILE_EMAIL_BACKEND
 
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, "../.."))
-
-
-load_dotenv()
 
 
 def make_request(
@@ -44,10 +40,10 @@ def make_request(
     """
     if method == "GET":
         response = requests.get(
-            url, data=data, params=params, headers=headers, timeout=MAX_TIMEOUT
+            url, data=data, params=params, headers=headers, timeout=REQUEST_MAX_TIMEOUT
         )
     elif method == "POST":
-        response = requests.post(url, data=data, headers=headers, timeout=MAX_TIMEOUT)
+        response = requests.post(url, data=data, headers=headers, timeout=REQUEST_MAX_TIMEOUT)
     else:
         return {}
 
@@ -69,12 +65,10 @@ def get_email_auth_class() -> Callable:
     Returns:
         type: The class for email authentication based on the environment variable.
     """
-    skill_profile_email_backend = os.getenv("SKILL_PROFILE_EMAIL_BACKEND", None)
-
-    if not skill_profile_email_backend:
+    if not SKILL_PROFILE_EMAIL_BACKEND:
         return AlexaEmailAuthentication
 
-    module_name, class_name = skill_profile_email_backend.rsplit(".", 1)
+    module_name, class_name = SKILL_PROFILE_EMAIL_BACKEND.rsplit(".", 1)
     module = import_module(module_name)
 
     return getattr(module, class_name, AlexaEmailAuthentication)
