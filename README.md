@@ -107,7 +107,7 @@ prerequisites:
    and configuring the skill.
 2. Installed [Node.js and npm](https://nodejs.org/en), [Python 3.8](https://www.python.org/downloads/),
    and [git](https://git-scm.com/).
-3. Access to an Open edX platform with admin privileges.
+3. Access to an Open edX platform with Django staff permissions.
 4. ASK CLI installed and configured in your computer. Follow the steps in the
    [ASK CLI documentation](./docs/1-ask-cli.md)
 5. `eox-core` installed and configured in your Open edX platform. Follow the
