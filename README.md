@@ -47,7 +47,7 @@ Alexa-enabled devices.
 
 The sample skill included in this repository is a basic demonstration of how to
 integrate Alexa with Open edX. It showcases how to handle user requests,
-authenticate with Open edX, and retrieve course data. Developers can use this
+authenticate with Open edX and retrieve course data. Developers can use this
 as a starting point to build more advanced interactions for Open edX.
 
 ### Features
@@ -81,7 +81,7 @@ interactions:
 
   e.g:
 
-  > "_Alexa Response_: Welcome **John**, this is the Open edX assistant, I can
+  > _Alexa Response_: "Welcome **John**, this is the Open edX assistant, I can
   > provide you information about student metrics and important aspects of a
   > course."
 
@@ -93,7 +93,7 @@ interactions:
 
   e.g:
 
-  > "_Alexa Response_: The progress for the student with username **johndoe**
+  > _Alexa Response_: "The progress for the student with username **johndoe**
   > in the course of **Introduction to Linux** is **50%**."
 
 ## Creating the Skill
@@ -119,7 +119,7 @@ We created a `Makefile` to help you to prepare and initialize your environment
 for Alexa's skill development. Before using the commands, ensure that you have
 the following requirements:
 
-- Python 3.8, we recommend to use a virtual environment to avoid conflicts with
+- Python 3.8, we recommend using a virtual environment to avoid conflicts with
   other python projects.
 - ASK CLI, follow the steps in the [ASK CLI documentation](./docs/1-ask-cli.md)
 
@@ -134,8 +134,8 @@ This command allows you initialize and configure the development environment.
 Under the hood, the command executes the following commands:
 
 - `make configure`: Configure the ASK CLI with your Amazon Developer account.
-- `make setup`: Create a new skill based in the sample skill. This command
-  creates a new skill based in the our sample-skill in the Amazon Alexa
+- `make setup`: Create a new skill based on the sample skill. This command
+  creates a new skill based in our sample-skill in the Amazon Alexa
   Console, and a new git repository in the `skills/` folder.
 
 ### Deployment
@@ -148,9 +148,10 @@ straightforward! Follow the steps below:
    `<skill-name>` is the name of your skill. e.g: `skills/openedx-skill/`.
 2. Make your changes.
 3. Commit your changes.
-4. Push your changes to the repository. Ensure that you push to the `master` branch.
+4. Push your changes to the repository. Ensure that you push to the `master`
+   branch.
 
-After you push your changes, the skill will be deployed automatically, you'll
+After you push your changes, the skill will be deployed automatically, you will
 only you need to wait a few minutes to see the changes in the skill in the
 Amazon Alexa Console.
 
@@ -189,25 +190,25 @@ Follow the steps below to configure the permissions:
 
 1. Open the Alexa app (Android or iOS). **IMPORTANT**: The account must be the
    same account that you use to create the skill in the Amazon Alexa Console.
-2. Go to "More" → "Skills & Games" → "Your Skills".
-3. Select the skill you want to configure. e.g: "Open edX Assistant".
-4. Select "Settings".
-5. Select "Manage account permissions".
-6. Enable "Email Address" permission.
+2. Go to **More** → **Skills & Games** → **Your Skills**.
+3. Select the skill you want to configure. e.g: **Open edX Assistant**.
+4. Select **Settings**.
+5. Select **Manage account permissions**.
+6. Enable **Email Address** permission.
 7. Save the changes.
 
-Additionally, if you want to use the skill you need to enable the "Voice
-Profile" permission. Follow the steps below to enable (if you haven't) the
-"Voice Profile" permission:
+Additionally, if you want to use the skill you need to enable the **Voice
+Profile** permission. Follow the steps below to enable (if you have not) the
+**Voice Profile** permission:
 
 1. Open the Alexa app (Android or iOS). **IMPORTANT**: The account must be the
    same account that you use to create the skill in the Amazon Alexa Console.
-2. Go to "More" → "Settings" → "Your Profile & Family".
+2. Go to **More** → **Settings** → **Your Profile & Family**.
 3. Select your profile.
-4. Select "Voice ID".
-5. If you don't have set up your Voice ID, perform the setup.
-6. Go to "Voice ID settings".
-7. Enable "Personalize Skills" permission.
+4. Select **Voice ID**.
+5. If you do not have set up your Voice ID, perform the setup.
+6. Go to **Voice ID settings**.
+7. Enable **Personalize Skills** permission.
 
 ### Enabling Spanish Support
 
@@ -216,11 +217,11 @@ Spanish, you need to follow the steps below:
 
 1. Go to the [Amazon Alexa Console](https://developer.amazon.com/alexa/console/ask).
 2. Select the skill you want to configure.
-3. Select the "Build" tab.
-4. Select "Language Settings".
-5. Select "+ Add New Language".
-6. Select "Spanish (ES)".
-7. Select "Save Changes".
+3. Select the **Build** tab.
+4. Select **Language Settings**.
+5. Select **+ Add New Language**.
+6. Select **Spanish (ES)**.
+7. Select **Save Changes**.
 
 ## Testing the Skill
 
@@ -230,12 +231,13 @@ To test the sample Alexa skill, follow these steps:
 
 1. Go to the [Amazon Alexa Console](https://developer.amazon.com/alexa/console/ask).
 2. Select the Skill you want to test.
-3. Select the "Test" tab.
-4. Select "Development" from the "Skill testing is enabled in:" dropdown.
+3. Select the **Test** tab.
+4. Select **Development** from the **Skill testing is enabled in:** dropdown.
 5. As the Skill uses voice profiles, to test interactions you need to do it by
    voice. If you are known profile, you can interact with the skill without
-   any issues. If you are not a known profile, the skill show you a message
-   indicating that you are not a known profile and the interaction will finish.
+   any issues. If you are not a known profile, the skill shows you a message
+   indicating that you are not a known profile, and the interaction will
+   finish.
 
 Also, you can test the skill using the Alexa app, be sure you are using the
 same account you use to create the skill in the Alexa Developer.
@@ -247,12 +249,12 @@ same account you use to create the skill in the Alexa Developer.
 You can create a custom email authentication backend to authenticate users with
 Open edX. To create a custom email authentication backend, follow the steps:
 
-1. Create a new file in the `auth` directory with the name of the backend, e.g. `custom.py`
-2. Create a class that inherits from `BaseEmailAuthenticationBackend`, e.g.
+1. Create a new file in the `auth` directory with the name of the backend, e.g., `custom.py`
+2. Create a class that inherits from `BaseEmailAuthenticationBackend`, e.g.,
    `CustomEmailAuthentication(BaseEmailAuthenticationBackend)`
 3. Implement the `get_email` method to retrieve the email of the user
    associated with the Open edX account. This method should return the email as
-   a `str` or `None` (if the email can't be obtained). The method should NOT
+   a `str` or `None` (if the email cannot be obtained). The method should NOT
    raise any exceptions.
 4. Create optionally `EMAIL_ERROR_MESSAGE` attribute to the class to customize
    the error. If not, the default error message will be used.
@@ -274,10 +276,10 @@ translations, you can use our `make` commands to help you. Follow the steps:
 2. In the `lambda/` folder, there is an Makefile with the following commands:
 
    - `extract-translations`: Extract the text marked for translation in
-     the `lambda/` folder. This update the `.po` files. (After you execute this
-     command, you need to update the translations in the `.po` files)
+     the `lambda/` folder. This updates the `.po` files. (After you execute
+     this command, you need to update the translations in the `.po` files)
    - `compile-translations`: Compile the translations in the `lambda/`
-     folder. This update the `.mo` files.
+     folder. This updates the `.mo` files.
 
 ## Getting Help
 

@@ -30,7 +30,7 @@ Note the following when creating the application from the Django admin:
 - The **Client id** and **Client secret** are automatically generated, do
   not modify them.
 - The selected **User** should have Django staff permissions.
-- Add to **Redirect uris** the URL of the LMS domain of the platform. e.g. `https://lms.example.com/`
+- Add to **Redirect urls** the URL of the LMS domain of the platform. e.g., `https://lms.example.com/`
 - Select **Client type** as "Confidential"
 - Select **Authorization grant type** as "Client credentials"
 - Add a custom **Name** to identify the application.
