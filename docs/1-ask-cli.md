@@ -20,7 +20,7 @@ npm and [git](https://git-scm.com/).
 ## Install and Initialize the ASK CLI
 
 Using `npm` install the ASK CLI. You should use a Unix OS, such as Linux or
-MacOS, if you are using Windows we recommend using the Windows Subsystem for
+MacOS, if you are using Windows, we recommend using the Windows Subsystem for
 Linux (WSL). To install the ASK CLI, run the following command:
 
 ```bash
