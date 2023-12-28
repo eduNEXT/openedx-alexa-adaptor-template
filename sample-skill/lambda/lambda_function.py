@@ -7,6 +7,7 @@ the student's progress in a given course on the Open edX platform.
 """
 from __future__ import annotations
 
+from difflib import SequenceMatcher as matcher
 import gettext
 import logging
 from typing import Callable
@@ -153,7 +154,7 @@ def get_courses_by_user(username: str, token: str) -> list | None:
     return response.get("results")
 
 
-def get_course_id(course_name: str, username: str, token: str) -> str | None:
+def get_course_id(voice_input: str, username: str, token: str) -> str | None:
     """
     Obtains the course ID based on the course name.
 
@@ -180,7 +181,44 @@ def get_course_id(course_name: str, username: str, token: str) -> str | None:
         if course["id"] in enrollments:
             valid_courses[course["name"].lower()] = course["id"]
 
-    return valid_courses.get(course_name)
+    return get_fuzzy_match(valid_courses, voice_input)
+
+
+def get_fuzzy_match(valid_courses: dict, voice_input: str) -> str | None:
+    """
+    Returns the course ID that best matches the voice input.
+
+    This function uses the matcher function to compare the voice input with the course
+    names and IDs in the valid_courses dictionary. It returns the course ID that has the
+    highest similarity ratio, or None if no match is found.
+
+    Args:
+        valid_courses (dict): A dictionary of course names and IDs.
+        voice_input (str): A string of the user's voice input.
+
+    Returns:
+        str | None: The course ID that best matches the voice input, or None if no match is found.
+    """
+    MIN_RATIO_FOR_CONSIDERATION = 0.6
+    possible_match = []
+
+    for name, course_id in valid_courses.items():
+        # Analize course name
+        voice_input_match = voice_input.lower()
+        ratio_name = matcher(None, voice_input_match, name).ratio()
+        if ratio_name > MIN_RATIO_FOR_CONSIDERATION:
+            possible_match.append([ratio_name, name, course_id])
+
+        # Analize course_id
+        org_course_run = course_id.replace("course-v1:","").replace("+"," ").lower()
+        ratio_id = matcher(None, voice_input, org_course_run).ratio()
+        if ratio_id > MIN_RATIO_FOR_CONSIDERATION:
+            possible_match.append([ratio_id, org_course_run, course_id])
+
+    sorted_list = sorted(possible_match, key=lambda sublist: sublist[0], reverse=True)
+
+    if sorted_list:
+        return sorted_list[0][2]
 
 
 def get_email(email_auth_instance: Callable) -> tuple[str | None, str | None]:
@@ -261,7 +299,7 @@ def get_speak_output_get_course_progress(
     if error_message:
         return error_message
 
-    coursename = slots["coursename"].value.lower()
+    coursename_input = slots["coursename"].value.lower()
 
     token = get_bearer_token()
 
@@ -273,7 +311,7 @@ def get_speak_output_get_course_progress(
     if not username:
         return _(data.USER_NOT_FOUND_MESSAGE).format(email)
 
-    course_id = get_course_id(coursename, username, token)
+    course_id = get_course_id(coursename_input, username, token)
 
     if not course_id:
         return _(data.COURSE_NOT_FOUND_MESSAGE)
@@ -283,7 +321,7 @@ def get_speak_output_get_course_progress(
     if not course_progress:
         return _(data.USER_NOT_ENROLLED_MESSAGE)
 
-    return _(data.PROGRESS_MESSAGE).format(username, coursename, course_progress)
+    return _(data.PROGRESS_MESSAGE).format(username, coursename_input, course_progress)
 
 
 class GetCourseProgressIntentHandler(AbstractRequestHandler):
